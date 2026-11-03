@@ -80,6 +80,7 @@ export interface ChartDBContext {
     currentDiagram: Diagram;
     events: EventEmitter<ChartDBEvent>;
     readonly?: boolean;
+    setCollaborationSynchronized: (synchronized: boolean) => void;
 
     highlightedCustomType?: DBCustomType;
     highlightCustomTypeId: (id?: string) => void;
@@ -350,6 +351,7 @@ export const chartDBContext = createContext<ChartDBContext>({
         updatedAt: new Date(),
     },
     events: new EventEmitter(),
+    setCollaborationSynchronized: emptyFn,
 
     // General operations
     updateDiagramId: emptyFn,

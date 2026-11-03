@@ -49,6 +49,8 @@ export const ChartDBProvider: React.FC<
     const { addUndoAction, resetRedoStack, resetUndoStack } =
         useRedoUndoStack();
 
+    const [collaborationSynchronized, setCollaborationSynchronized] =
+        useState(true);
     const [diagramId, setDiagramId] = useState('');
     const [diagramName, setDiagramName] = useState('');
     const [diagramCreatedAt, setDiagramCreatedAt] = useState<Date>(new Date());
@@ -103,8 +105,8 @@ export const ChartDBProvider: React.FC<
     );
 
     const readonly = useMemo(
-        () => readonlyProp ?? hasDiff ?? false,
-        [readonlyProp, hasDiff]
+        () => (readonlyProp ?? hasDiff ?? false) || !collaborationSynchronized,
+        [readonlyProp, hasDiff, collaborationSynchronized]
     );
 
     const schemas = useMemo(
@@ -2110,6 +2112,7 @@ export const ChartDBProvider: React.FC<
                 schemas,
                 events,
                 readonly,
+                setCollaborationSynchronized,
                 updateDiagramData,
                 updateDiagramId,
                 updateDiagramName,

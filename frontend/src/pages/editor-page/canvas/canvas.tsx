@@ -359,41 +359,147 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         y: number;
     } | null>(null);
     const [collaboratorCursors, setCollaboratorCursors] = useState<
-        Record<string, { name: string; position: { x: number; y: number } }>
+        Record<
+            string,
+            {
+                name: string;
+                position?: { x: number; y: number };
+                selection?: string[];
+            }
+        >
     >({});
+    const [remotePreviews, setRemotePreviews] = useState<
+        Record<
+            string,
+            {
+                owner: string;
+                position?: { x: number; y: number };
+                dimensions?: { width: number; height: number };
+            }
+        >
+    >({});
+    const remotePreviewTimersRef = useRef(new Map<string, number>());
+    const remotePreviewsRef = useRef(remotePreviews);
+    remotePreviewsRef.current = remotePreviews;
 
     useEffect(() => {
         const handlePeer = (event: Event) => {
             const peer = (
                 event as CustomEvent<{
-                    type: 'cursor' | 'name' | 'editing';
-                    id: string;
-                    name: string;
+                    type:
+                        | 'cursor'
+                        | 'name'
+                        | 'selection'
+                        | 'editing'
+                        | 'preview'
+                        | 'leave'
+                        | 'reset';
+                    id?: string;
+                    clientId?: string;
+                    name?: string;
                     position?: { x: number; y: number };
-                    nodeId?: string;
-                    active?: boolean;
+                    selection?: string[];
+                    targetId?: string;
+                    payload?: unknown;
                 }>
             ).detail;
-            if (!peer?.id) return;
-            setCollaboratorCursors((current) => {
-                const previous = current[peer.id];
-                if (peer.type === 'name' || peer.type === 'editing') {
-                    if (!previous) return current;
-                    return {
-                        ...current,
-                        [peer.id]: { ...previous, name: peer.name },
-                    };
+            if (peer?.type === 'reset') {
+                for (const timer of remotePreviewTimersRef.current.values()) {
+                    window.clearTimeout(timer);
                 }
-                if (!peer.position) return current;
+                remotePreviewTimersRef.current.clear();
+                setRemotePreviews({});
+                setCollaboratorCursors({});
+                return;
+            }
+            const peerId = peer?.clientId ?? peer?.id;
+            if (!peerId) return;
+            if (peer.type === 'leave') {
+                for (const [targetId, preview] of Object.entries(
+                    remotePreviewsRef.current
+                )) {
+                    if (preview.owner === peerId) {
+                        const timer =
+                            remotePreviewTimersRef.current.get(targetId);
+                        if (timer !== undefined) window.clearTimeout(timer);
+                        remotePreviewTimersRef.current.delete(targetId);
+                    }
+                }
+                setRemotePreviews((current) =>
+                    Object.fromEntries(
+                        Object.entries(current).filter(
+                            ([, preview]) => preview.owner !== peerId
+                        )
+                    )
+                );
+            } else if (peer.type === 'preview' && peer.targetId) {
+                const payload = peer.payload as
+                    | {
+                          active?: boolean;
+                          position?: { x: number; y: number };
+                          dimensions?: { width: number; height: number };
+                      }
+                    | undefined;
+                const oldTimer = remotePreviewTimersRef.current.get(
+                    peer.targetId
+                );
+                if (oldTimer !== undefined) window.clearTimeout(oldTimer);
+                if (
+                    !payload?.active ||
+                    (!payload.position && !payload.dimensions)
+                ) {
+                    remotePreviewTimersRef.current.delete(peer.targetId);
+                    setRemotePreviews((current) => {
+                        const next = { ...current };
+                        delete next[peer.targetId!];
+                        return next;
+                    });
+                } else {
+                    setRemotePreviews((current) => ({
+                        ...current,
+                        [peer.targetId!]: {
+                            owner: peerId,
+                            position: payload.position,
+                            dimensions: payload.dimensions,
+                        },
+                    }));
+                    const timer = window.setTimeout(() => {
+                        setRemotePreviews((current) => {
+                            const next = { ...current };
+                            delete next[peer.targetId!];
+                            return next;
+                        });
+                        remotePreviewTimersRef.current.delete(peer.targetId!);
+                    }, 10000);
+                    remotePreviewTimersRef.current.set(peer.targetId, timer);
+                }
+            }
+            setCollaboratorCursors((current) => {
+                if (peer.type === 'leave') {
+                    const remaining = { ...current };
+                    delete remaining[peerId];
+                    return remaining;
+                }
+                const previous = current[peerId];
                 return {
                     ...current,
-                    [peer.id]: { name: peer.name, position: peer.position },
+                    [peerId]: {
+                        name: peer.name ?? previous?.name ?? 'Collaborator',
+                        position: peer.position ?? previous?.position,
+                        selection: peer.selection ?? previous?.selection,
+                    },
                 };
             });
         };
         window.addEventListener('collaboration:peer', handlePeer);
-        return () =>
+        const previewTimers = remotePreviewTimersRef.current;
+        return () => {
             window.removeEventListener('collaboration:peer', handlePeer);
+            for (const timer of previewTimers.values()) {
+                window.clearTimeout(timer);
+            }
+            previewTimers.clear();
+        };
     }, []);
 
     useEffect(() => {
@@ -1304,6 +1410,41 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                 }
             }
 
+            for (const change of changesToApply) {
+                if (
+                    change.type === 'position' &&
+                    change.dragging !== undefined
+                ) {
+                    window.dispatchEvent(
+                        new CustomEvent('collaboration:preview', {
+                            detail: {
+                                targetId: change.id,
+                                payload: {
+                                    active: change.dragging,
+                                    position: change.position,
+                                },
+                            },
+                        })
+                    );
+                } else if (
+                    change.type === 'dimensions' &&
+                    change.resizing !== undefined &&
+                    change.dimensions
+                ) {
+                    window.dispatchEvent(
+                        new CustomEvent('collaboration:preview', {
+                            detail: {
+                                targetId: change.id,
+                                payload: {
+                                    active: change.resizing,
+                                    dimensions: change.dimensions,
+                                },
+                            },
+                        })
+                    );
+                }
+            }
+
             return onNodesChange(changesToApply);
         },
         [
@@ -1568,10 +1709,36 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         exitEditTableMode,
     ]);
 
-    // Add temporary invisible node at cursor position and edge
+    // Add transient remote previews without updating persisted editor state.
     const nodesWithCursor = useMemo(() => {
+        const previewNodes = nodes.map((node) => {
+            const preview = remotePreviews[node.id];
+            const selectedBy = Object.values(collaboratorCursors)
+                .filter((peer) => peer.selection?.includes(node.id))
+                .map((peer) => peer.name);
+            if ((!preview || node.dragging) && selectedBy.length === 0) {
+                return node;
+            }
+            return {
+                ...node,
+                position:
+                    !node.dragging && preview?.position
+                        ? preview.position
+                        : node.position,
+                style: {
+                    ...node.style,
+                    ...(!node.dragging ? preview?.dimensions : undefined),
+                    ...(selectedBy.length > 0
+                        ? {
+                              outline: '2px solid hsl(var(--primary))',
+                              outlineOffset: '2px',
+                          }
+                        : undefined),
+                },
+            };
+        });
         if (!tempFloatingEdge || !cursorPosition) {
-            return nodes;
+            return previewNodes;
         }
 
         const tempNode: TempCursorNodeType = {
@@ -1583,8 +1750,14 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
             selectable: false,
         };
 
-        return [...nodes, tempNode];
-    }, [nodes, tempFloatingEdge, cursorPosition]);
+        return [...previewNodes, tempNode];
+    }, [
+        nodes,
+        tempFloatingEdge,
+        cursorPosition,
+        remotePreviews,
+        collaboratorCursors,
+    ]);
 
     const edgesWithFloating = useMemo(() => {
         if (!tempFloatingEdge || !cursorPosition) return edges;
@@ -1658,6 +1831,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                 onMouseMove={handleMouseMove}
             >
                 {Object.entries(collaboratorCursors).map(([id, peer]) => {
+                    if (!peer.position) return null;
                     const screen = flowToScreenPosition(peer.position);
                     const canvasBounds =
                         containerRef.current?.getBoundingClientRect();
@@ -1690,6 +1864,19 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                     edges={edgesWithFloating}
                     onNodesChange={onNodesChangeHandler}
                     onEdgesChange={onEdgesChangeHandler}
+                    onSelectionChange={({
+                        nodes: selectedNodes,
+                        edges: selectedEdges,
+                    }) => {
+                        window.dispatchEvent(
+                            new CustomEvent('collaboration:selection', {
+                                detail: [
+                                    ...selectedNodes.map((node) => node.id),
+                                    ...selectedEdges.map((edge) => edge.id),
+                                ],
+                            })
+                        );
+                    }}
                     maxZoom={5}
                     minZoom={0.1}
                     onConnect={onConnectHandler}

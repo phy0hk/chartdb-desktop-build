@@ -28,7 +28,11 @@ func (a *App) StartCollaboration() (CollaborationSession, error) {
 	a.collaborationMu.Lock()
 	defer a.collaborationMu.Unlock()
 	if a.collaboration != nil {
-		return *a.collaboration, nil
+		if a.collaboration.isEnded == nil || !a.collaboration.isEnded() {
+			return *a.collaboration, nil
+		}
+		a.collaboration.stop()
+		a.collaboration = nil
 	}
 	session, err := startCollaboration()
 	if err != nil {
