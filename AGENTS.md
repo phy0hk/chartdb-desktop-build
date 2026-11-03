@@ -10,6 +10,13 @@ Follow this context read order to minimize unnecessary context and maintain reli
 4. Read `.ai_context/memory/CHRONICLE.md` only when historical architectural rationale is needed.
 5. Read only the project or documentation files relevant to the active scope. Use the manifest's Files to Touch list when it is populated; do not scan unrelated files.
 
+## Graphify-assisted code reading
+
+- Treat `graphify-out/` as a code-reading cache and navigation aid, not a replacement for source files. When available, use scoped Graphify queries (`graphify query`, `graphify explain`, or `graphify path`) for codebase questions; use `GRAPH_REPORT.md` for broad orientation and `graphify-out/wiki/index.md` to navigate a generated wiki when present.
+- If the graph, report, or relevant cached memory does not exist, cannot be queried, is stale, or does not contain enough detail to answer the question, read the relevant source files directly. Do not stop or infer that information is absent just because it is absent from the graph.
+- Before making or validating code changes, inspect the relevant source and tests directly; graph output can guide where to look but may omit details or lag behind the code.
+- After modifying code files, run `graphify update .` when the CLI is available to refresh the cache. Do not treat Graphify's output as evidence for Graphify's own correctness.
+
 ## Incremental manifest updates
 
 - After diagnosis, update `.ai_context/MANIFEST.md` with concrete findings and a step-by-step checklist under In-Progress Tasks.

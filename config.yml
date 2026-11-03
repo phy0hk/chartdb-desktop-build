@@ -1,0 +1,34 @@
+version: 3
+project:
+  name: chartdb-desktop
+  product_name: ChartDB Desktop
+  identifier: com.chartdb.desktop
+  version: 0.0.1
+  binary_name: chartdb-desktop
+  build_number: 1
+frontend:
+  disabled: true
+  directory: frontend
+  install: [bun, install]
+  build: [bun, run, build]
+  dev: [bun, run, dev]
+  output: dist
+  bindings:
+    typescript: true
+    interfaces: true
+    output: bindings
+    models_filename: models
+    index_filename: index
+    time_type: string
+build:
+  output: bin
+dev:
+  watch: ["**/*.go", wails.yaml]
+  exclude: [.git, .wails, bin, node_modules, frontend/dist]
+targets:
+  windows/amd64: {}
+  windows/arm64: {}
+  darwin/amd64: {}
+  darwin/arm64: {}
+  linux/amd64: {}
+  linux/arm64: {}

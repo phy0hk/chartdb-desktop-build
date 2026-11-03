@@ -95,6 +95,51 @@
 - Cold/warm desktop startup and two-device LAN validation were not performed: no running Wails desktop/second LAN client was available in this execution environment. No timing or successful invite address is claimed.
 - No Vite visualizer attribution, packaged-app verification, or performance change is justified yet; Task 1's reproducible bundle baseline and Task 2 startup spans remain incomplete.
 
+## Task 13: Diagnose guest diagram-identity rejection
+
+**Description:** Reproduce the guest error `A collaboration session cannot change diagram identity` and determine why the active guest diagram ID differs from the collaboration document ID.
+
+**Acceptance criteria:**
+
+- [ ] Record exact host/guest actions, active diagram IDs before and after the rejection, and whether the guest joined the intended diagram.
+- [ ] Trace the guest snapshot/welcome and editor-state transition that reaches `buildDiagramOperation` with differing IDs.
+- [ ] If a defect is confirmed, add a focused regression test and make the smallest safe fix; otherwise record the missing reproduction evidence and expected behavior.
+- [ ] Preserve the invariant that an active collaboration session cannot silently switch document identity.
+
+**Verification:**
+
+- [ ] Run the focused collaboration operation/editor tests.
+- [ ] Verify the reproduced flow with host and guest desktop clients when available.
+
+**Dependencies:** User reproduction details; Tasks 3 and 11 if the failure depends on operation rejection or reconnect/resync.
+
+**Files likely touched:** Collaboration editor state/welcome handling and focused tests, identified during diagnosis.
+
+**Estimated scope:** M
+
+## Task 14: Diagnose host `entityVersion:invalidinput` rejection
+
+**Description:** Capture and validate the exact rejected operation to identify why the host reports `entityVersion:invalidinput`.
+
+**Acceptance criteria:**
+
+- [ ] Capture the host rejection payload, operation `payload`, `entityVersions`, operation `documentId`, and the host's active document ID; redact invite tokens and other secrets.
+- [ ] Determine whether rejection occurs during frontend/Go protocol decoding, entity-version-to-change matching, snapshot-seeded version lookup, or stale-version sequencing.
+- [ ] Reproduce using a documented operation payload, or record the missing inputs and leave the report unconfirmed.
+- [ ] Add a regression test and code change only for a confirmed root cause; retain host-authoritative version validation.
+
+**Verification:**
+
+- [ ] Run focused frontend operation-validation and Go protocol/sequencer tests.
+- [ ] Verify valid edits are accepted and stale same-entity edits remain rejected.
+- [ ] Repeat with host/guest desktop clients when available.
+
+**Dependencies:** User-provided host error details and operation payload; Task 3's existing invalid-operation investigation.
+
+**Files likely touched:** `frontend/src/lib/collaboration/diagram-operations.ts`, `collaboration_protocol.go`, `collaboration_operations.go`, and focused tests as established by diagnosis.
+
+**Estimated scope:** M
+
 ## Task 5: Attribute bundle cost and evaluate lazy-loading
 
 **Description:** Use the existing Vite visualizer to identify the largest dependencies/features and lazy-load only measured heavy routes/features.

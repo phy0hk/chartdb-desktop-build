@@ -1,0 +1,7 @@
+version: '3'
+
+tasks:
+  build:
+    desc: "Build Linux binary"
+    cmds:
+      - go build -o build/bin/app main.go
