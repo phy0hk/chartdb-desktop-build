@@ -16,4 +16,12 @@ to this in your browser, and you can call your Go code from devtools.
 
 ## Building
 
+To build a frontend
+
+**Using Bun:**
+
+```bash
+NODE_OPTIONS="--max-old-space-size=4096" bun run build
+```
+
 To build a redistributable, production mode package, use `wails build`.

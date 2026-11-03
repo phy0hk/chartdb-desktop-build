@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from '@/components/card/card';
 import {
     ZoomIn,
@@ -8,6 +8,7 @@ import {
     Undo,
     Scan,
     LayoutGrid,
+    Users,
 } from 'lucide-react';
 import { Separator } from '@/components/separator/separator';
 import { ToolbarButton } from './toolbar-button';
@@ -26,6 +27,7 @@ import { useCanvas } from '@/hooks/use-canvas';
 import { cn } from '@/lib/utils';
 import { useDiagramFilter } from '@/context/diagram-filter-context/use-diagram-filter';
 import { useAlert } from '@/context/alert-context/alert-context';
+import { useChartDB } from '@/hooks/use-chartdb';
 
 const convertToPercentage = (value: number) => `${Math.round(value * 100)}%`;
 
@@ -41,6 +43,124 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
     const { setShowFilter, reorderTables } = useCanvas();
     const { hasActiveFilter } = useDiagramFilter();
     const { showAlert } = useAlert();
+    const { currentDiagram, loadDiagramFromData } = useChartDB();
+    const [collaborationUrl, setCollaborationUrl] = useState('');
+    const [collaborationUrls, setCollaborationUrls] = useState<string[]>([]);
+    const [collaborationStatus, setCollaborationStatus] = useState('');
+    const [participantName, setParticipantName] = useState(
+        () => `Guest-${Math.random().toString(36).slice(2, 7)}`
+    );
+    const participantIdRef = useRef(crypto.randomUUID());
+    const participantNameRef = useRef(participantName);
+    participantNameRef.current = participantName;
+    const socketRef = useRef<WebSocket | null>(null);
+    const lastRemoteRef = useRef('');
+    const hostRef = useRef(false);
+
+    useEffect(() => {
+        const socket = socketRef.current;
+        if (!socket || socket.readyState !== WebSocket.OPEN) return;
+        const snapshot = JSON.stringify(currentDiagram);
+        if (snapshot !== lastRemoteRef.current) socket.send(snapshot);
+    }, [currentDiagram]);
+
+    const startCollaboration = async () => {
+        if (!window.go?.main?.App) {
+            setCollaborationStatus(
+                'Collaboration requires the Wails desktop app.'
+            );
+            return;
+        }
+        try {
+            const session = await window.go.main.App.StartCollaboration();
+            hostRef.current = true;
+            setCollaborationUrl(session.url);
+            setCollaborationUrls(session.urls ?? [session.url]);
+            connectCollaboration(session.url);
+        } catch (error) {
+            setCollaborationStatus(String(error));
+        }
+    };
+
+    const connectCollaboration = (url: string) => {
+        socketRef.current?.close();
+        const socket = new WebSocket(url);
+        socketRef.current = socket;
+        socket.onopen = () => {
+            setCollaborationStatus('Connected');
+            socket.send(
+                JSON.stringify({
+                    type: 'name',
+                    id: participantIdRef.current,
+                    name: participantName,
+                })
+            );
+            if (hostRef.current) {
+                const snapshot = JSON.stringify(currentDiagram);
+                lastRemoteRef.current = '';
+                socket.send(snapshot);
+            }
+        };
+        socket.onclose = () => setCollaborationStatus('Disconnected');
+        socket.onerror = () => setCollaborationStatus('Connection failed');
+        socket.onmessage = (event) => {
+            try {
+                const message = JSON.parse(event.data);
+                if (message?.type === 'cursor' || message?.type === 'name') {
+                    window.dispatchEvent(
+                        new CustomEvent('collaboration:peer', {
+                            detail: message,
+                        })
+                    );
+                    return;
+                }
+                const snapshot = JSON.stringify(message);
+                lastRemoteRef.current = snapshot;
+                loadDiagramFromData(message);
+            } catch {
+                setCollaborationStatus(
+                    'Received an invalid collaboration message'
+                );
+            }
+        };
+        const sendCursor = (event: Event) => {
+            const socket = socketRef.current;
+            if (!socket || socket.readyState !== WebSocket.OPEN) return;
+            const position = (event as CustomEvent<{ x: number; y: number }>)
+                .detail;
+            socket.send(
+                JSON.stringify({
+                    type: 'cursor',
+                    id: participantIdRef.current,
+                    name: participantNameRef.current,
+                    position,
+                })
+            );
+        };
+        window.addEventListener('collaboration:cursor', sendCursor);
+        socket.addEventListener('close', () =>
+            window.removeEventListener('collaboration:cursor', sendCursor)
+        );
+    };
+
+    const joinCollaboration = () => {
+        const url = window.prompt('Enter the collaboration WebSocket URL');
+        if (url) {
+            hostRef.current = false;
+            setCollaborationUrl(url);
+            connectCollaboration(url);
+        }
+    };
+
+    const stopCollaboration = async () => {
+        socketRef.current?.close();
+        socketRef.current = null;
+        hostRef.current = false;
+        if (window.go?.main?.App) await window.go.main.App.StopCollaboration();
+        setCollaborationUrl('');
+        setCollaborationUrls([]);
+        setCollaborationStatus('');
+    };
 
     const toggleFilter = useCallback(() => {
         setShowFilter((prev) => !prev);
@@ -139,6 +259,62 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                             </span>
                         </TooltipContent>
                     </Tooltip>
+                    <Separator orientation="vertical" />
+                    <ToolbarButton
+                        onClick={
+                            collaborationUrl
+                                ? stopCollaboration
+                                : startCollaboration
+                        }
+                    >
+                        <Users />
+                    </ToolbarButton>
+                    <ToolbarButton onClick={joinCollaboration}>
+                        Join
+                    </ToolbarButton>
+                    {collaborationUrl ? (
+                        <Button
+                            variant="ghost"
+                            onClick={() => {
+                                const name = window.prompt(
+                                    'Your name for this session',
+                                    participantNameRef.current
+                                );
+                                if (!name?.trim()) return;
+                                setParticipantName(name.trim());
+                                const socket = socketRef.current;
+                                if (socket?.readyState === WebSocket.OPEN) {
+                                    socket.send(
+                                        JSON.stringify({
+                                            type: 'name',
+                                            id: participantIdRef.current,
+                                            name: name.trim(),
+                                        })
+                                    );
+                                }
+                            }}
+                        >
+                            {participantName}
+                        </Button>
+                    ) : null}
+                    {collaborationUrl ? (
+                        <Button
+                            variant="ghost"
+                            onClick={() =>
+                                navigator.clipboard?.writeText(
+                                    collaborationUrls.join('\n') ||
+                                        collaborationUrl
+                                )
+                            }
+                        >
+                            Copy invite
+                        </Button>
+                    ) : null}
+                    {collaborationStatus ? (
+                        <span className="px-2 text-xs">
+                            {collaborationStatus}
+                        </span>
+                    ) : null}
                     <Separator orientation="vertical" />
                     <Tooltip>
                         <TooltipTrigger asChild>

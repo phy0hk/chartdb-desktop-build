@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
+	"sync"
 )
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx             context.Context
+	collaborationMu sync.Mutex
+	collaboration   *CollaborationSession
 }
 
 // NewApp creates a new App application struct
@@ -19,6 +22,33 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+}
+
+func (a *App) StartCollaboration() (CollaborationSession, error) {
+	a.collaborationMu.Lock()
+	defer a.collaborationMu.Unlock()
+	if a.collaboration != nil {
+		return *a.collaboration, nil
+	}
+	session, err := startCollaboration()
+	if err != nil {
+		return CollaborationSession{}, err
+	}
+	a.collaboration = &session
+	return session, nil
+}
+
+func (a *App) StopCollaboration() {
+	a.collaborationMu.Lock()
+	defer a.collaborationMu.Unlock()
+	if a.collaboration != nil {
+		a.collaboration.stop()
+		a.collaboration = nil
+	}
+}
+
+func (a *App) shutdown(context.Context) {
+	a.StopCollaboration()
 }
 
 // Greet returns a greeting for the given name

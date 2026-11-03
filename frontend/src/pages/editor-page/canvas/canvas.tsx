@@ -358,6 +358,43 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         x: number;
         y: number;
     } | null>(null);
+    const [collaboratorCursors, setCollaboratorCursors] = useState<
+        Record<string, { name: string; position: { x: number; y: number } }>
+    >({});
+
+    useEffect(() => {
+        const handlePeer = (event: Event) => {
+            const peer = (
+                event as CustomEvent<{
+                    type: 'cursor' | 'name' | 'editing';
+                    id: string;
+                    name: string;
+                    position?: { x: number; y: number };
+                    nodeId?: string;
+                    active?: boolean;
+                }>
+            ).detail;
+            if (!peer?.id) return;
+            setCollaboratorCursors((current) => {
+                const previous = current[peer.id];
+                if (peer.type === 'name' || peer.type === 'editing') {
+                    if (!previous) return current;
+                    return {
+                        ...current,
+                        [peer.id]: { ...previous, name: peer.name },
+                    };
+                }
+                if (!peer.position) return current;
+                return {
+                    ...current,
+                    [peer.id]: { name: peer.name, position: peer.position },
+                };
+            });
+        };
+        window.addEventListener('collaboration:peer', handlePeer);
+        return () =>
+            window.removeEventListener('collaboration:peer', handlePeer);
+    }, []);
 
     useEffect(() => {
         setIsInitialLoadingNodes(true);
@@ -1471,26 +1508,27 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         []
     );
 
-    // Handle mouse move to update cursor position for floating edge
-    const { screenToFlowPosition } = useReactFlow();
+    // Handle mouse move to update cursor position for floating edge and collaborators
+    const { screenToFlowPosition, flowToScreenPosition } = useReactFlow();
     const rafIdRef = useRef<number>();
     const handleMouseMove = useCallback(
         (event: React.MouseEvent) => {
-            if (tempFloatingEdge) {
-                // Throttle using requestAnimationFrame
-                if (rafIdRef.current) {
-                    return;
-                }
-
-                rafIdRef.current = requestAnimationFrame(() => {
-                    const position = screenToFlowPosition({
-                        x: event.clientX,
-                        y: event.clientY,
-                    });
-                    setCursorPosition(position);
-                    rafIdRef.current = undefined;
+            if (rafIdRef.current) return;
+            const clientX = event.clientX;
+            const clientY = event.clientY;
+            rafIdRef.current = requestAnimationFrame(() => {
+                const position = screenToFlowPosition({
+                    x: clientX,
+                    y: clientY,
                 });
-            }
+                if (tempFloatingEdge) setCursorPosition(position);
+                window.dispatchEvent(
+                    new CustomEvent('collaboration:cursor', {
+                        detail: position,
+                    })
+                );
+                rafIdRef.current = undefined;
+            });
         },
         [tempFloatingEdge, screenToFlowPosition]
     );
@@ -1619,6 +1657,29 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                 ref={containerRef}
                 onMouseMove={handleMouseMove}
             >
+                {Object.entries(collaboratorCursors).map(([id, peer]) => {
+                    const screen = flowToScreenPosition(peer.position);
+                    const bounds =
+                        containerRef.current?.getBoundingClientRect();
+                    if (!bounds) return null;
+                    return (
+                        <div
+                            key={id}
+                            className="pointer-events-none absolute z-50"
+                            style={{
+                                left: screen.x - bounds.left,
+                                top: screen.y - bounds.top,
+                            }}
+                        >
+                            <div className="origin-center rotate-180 text-lg leading-none text-primary">
+                                ➤
+                            </div>
+                            <span className="rounded bg-primary px-1.5 py-0.5 text-xs text-primary-foreground">
+                                {peer.name}
+                            </span>
+                        </div>
+                    );
+                })}
                 <ReactFlow
                     onlyRenderVisibleElements
                     colorMode={effectiveTheme}
