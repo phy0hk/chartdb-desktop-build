@@ -203,7 +203,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
             reviveCollaborationDates(message.payload)
         );
         documentIdRef.current = message.documentId;
-        revisionRef.current = 0;
+        revisionRef.current = message.revision ?? 0;
         targetRevisionRef.current = message.revision ?? 0;
         operationsByRevisionRef.current.clear();
         entityVersionsRef.current = seedEntityVersions(snapshot);
