@@ -1,21 +1,12 @@
-# Task Manifest
+# Active Manifest & Liveness Checklist
 
-- Latest Memo Pointer: `.ai_context/memos/MEMO_20261103_0001.md`
-- Requirements Version: v1.0
-- Current Objective: Improve collaboration reliability and test host/join WebSocket behavior.
-- Files to Touch:
-    - `collaboration.go`
-    - `frontend/src/pages/editor-page/canvas/canvas.tsx`
-- In-Progress Tasks:
-    - [ ] Fix collaborator pointer orientation; the overlay uses a right-facing `➤` glyph.
-    - [ ] Begin edit-collision detection by broadcasting active node edits and tracking overlapping collaborators; current collaboration only relays cursor/name and diagram snapshots.
-    - [ ] Validate Go and frontend changes.
-    - Completed `collaboration.go`: edit-status messages are transient and no longer overwrite the diagram snapshot.
-    - Completed `frontend/src/pages/editor-page/canvas/canvas.tsx`: collaborator pointer glyph rotated to face left; peer event typing accepts editing-status messages (tracking/display is not yet implemented).
-- Files to Touch:
-    - `collaboration.go`
-    - `frontend/src/pages/editor-page/canvas/canvas.tsx`
-    - `frontend/src/pages/editor-page/canvas/toolbar/toolbar.tsx`
-- Next Tasks:
-    - [ ] Add automated host/join WebSocket integration tests.
-    - [ ] Add collaborator disconnect/presence cleanup messages.
+- Latest Chronicle Entry: `.ai_context/memory/CHRONICLE.md#2026-11-03 — Collaboration cursor and live updates`
+- Requirements Version: 1.0 (from `.ai_context/REQUIREMENTS.md`)
+- Rules Reference: `/RULES.md`
+- Current Objective: [Migration Complete] Context structure updated to token-context-optimizer standard.
+- Files to Touch: None (Ready for next sprint)
+- In-Progress Tasks (Liveness Checklist):
+    - [x] Create RULES.md
+    - [x] Migrate legacy memos into CHRONICLE.md
+    - [x] Clean up old memos directory
+    - [x] Update MANIFEST.md and AGENTS.md

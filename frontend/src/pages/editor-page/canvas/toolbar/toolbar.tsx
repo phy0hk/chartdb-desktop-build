@@ -44,6 +44,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
     const { hasActiveFilter } = useDiagramFilter();
     const { showAlert } = useAlert();
     const { currentDiagram, loadDiagramFromData } = useChartDB();
+    const currentDiagramRef = useRef(currentDiagram);
+    currentDiagramRef.current = currentDiagram;
     const [collaborationUrl, setCollaborationUrl] = useState('');
     const [collaborationUrls, setCollaborationUrls] = useState<string[]>([]);
     const [collaborationStatus, setCollaborationStatus] = useState('');
@@ -55,13 +57,20 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
     participantNameRef.current = participantName;
     const socketRef = useRef<WebSocket | null>(null);
     const lastRemoteRef = useRef('');
+    const lastSentRef = useRef('');
     const hostRef = useRef(false);
 
     useEffect(() => {
         const socket = socketRef.current;
         if (!socket || socket.readyState !== WebSocket.OPEN) return;
         const snapshot = JSON.stringify(currentDiagram);
-        if (snapshot !== lastRemoteRef.current) socket.send(snapshot);
+        if (
+            snapshot !== lastRemoteRef.current &&
+            snapshot !== lastSentRef.current
+        ) {
+            lastSentRef.current = snapshot;
+            socket.send(snapshot);
+        }
     }, [currentDiagram]);
 
     const startCollaboration = async () => {
@@ -96,8 +105,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                 })
             );
             if (hostRef.current) {
-                const snapshot = JSON.stringify(currentDiagram);
-                lastRemoteRef.current = '';
+                const snapshot = JSON.stringify(currentDiagramRef.current);
+                lastRemoteRef.current = snapshot;
+                lastSentRef.current = snapshot;
                 socket.send(snapshot);
             }
         };
@@ -116,6 +126,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                 }
                 const snapshot = JSON.stringify(message);
                 lastRemoteRef.current = snapshot;
+                lastSentRef.current = snapshot;
                 loadDiagramFromData(message);
             } catch {
                 setCollaborationStatus(

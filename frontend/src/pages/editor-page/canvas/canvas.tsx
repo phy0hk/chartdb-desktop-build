@@ -1659,19 +1659,18 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
             >
                 {Object.entries(collaboratorCursors).map(([id, peer]) => {
                     const screen = flowToScreenPosition(peer.position);
-                    const bounds =
+                    const canvasBounds =
                         containerRef.current?.getBoundingClientRect();
-                    if (!bounds) return null;
                     return (
                         <div
                             key={id}
-                            className="pointer-events-none absolute z-50"
+                            className="pointer-events-none absolute z-[9999]"
                             style={{
-                                left: screen.x - bounds.left,
-                                top: screen.y - bounds.top,
+                                left: screen.x - (canvasBounds?.left ?? 0),
+                                top: screen.y - (canvasBounds?.top ?? 0),
                             }}
                         >
-                            <div className="origin-center rotate-180 text-lg leading-none text-primary">
+                            <div className="origin-center rotate-[225deg] text-lg leading-none text-primary">
                                 ➤
                             </div>
                             <span className="rounded bg-primary px-1.5 py-0.5 text-xs text-primary-foreground">
