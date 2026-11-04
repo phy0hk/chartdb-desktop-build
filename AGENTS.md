@@ -1,132 +1,66 @@
-# AI Developer & Technical Writer Rules — Budget Request System
+# ChartDB Desktop Development Rules
 
-Follow this context read order to minimize unnecessary context and maintain reliable progress:
+These instructions apply to this repository, a Wails desktop application with a frontend and Go backend for ChartDB diagram collaboration.
 
-## Read protocol (in order)
+## Read order and scope
 
-1. Read `/RULES.md` first for non-negotiable project guardrails.
-2. Read `.ai_context/MANIFEST.md` second for immediate scope and real-time liveness tracking.
-3. Read `.ai_context/REQUIREMENTS.md` only when the task changes high-level specifications, architecture, or core conventions.
-4. Read `.ai_context/memory/CHRONICLE.md` only when historical architectural rationale is needed.
-5. Read only the project or documentation files relevant to the active scope. Use the manifest's Files to Touch list when it is populated; do not scan unrelated files.
+1. Read `RULES.md` for non-negotiable project constraints.
+2. Read `.ai_context/MANIFEST.md` for the active task, files in scope, and liveness checklist.
+3. Read `.ai_context/REQUIREMENTS.md` only when changing architecture, requirements, interfaces, or core conventions.
+4. Read `.ai_context/memory/CHRONICLE.md` only when historical rationale is needed.
+5. Read only source files, tests, and documentation relevant to the active task. Do not scan unrelated areas of the repository.
 
-## Graphify-assisted code reading
+Keep `.ai_context/MANIFEST.md` current: record the diagnosis before editing, mark each file complete immediately after editing it, and leave a clear list of remaining work.
 
-- Treat `graphify-out/` as a code-reading cache and navigation aid, not a replacement for source files. When available, use scoped Graphify queries (`graphify query`, `graphify explain`, or `graphify path`) for codebase questions; use `GRAPH_REPORT.md` for broad orientation and `graphify-out/wiki/index.md` to navigate a generated wiki when present.
-- If the graph, report, or relevant cached memory does not exist, cannot be queried, is stale, or does not contain enough detail to answer the question, read the relevant source files directly. Do not stop or infer that information is absent just because it is absent from the graph.
-- Before making or validating code changes, inspect the relevant source and tests directly; graph output can guide where to look but may omit details or lag behind the code.
-- After modifying code files, run `graphify update .` when the CLI is available to refresh the cache. Do not treat Graphify's output as evidence for Graphify's own correctness.
+## Project context
 
-## Incremental manifest updates
+- The application is built with Wails, Go, and a frontend under `frontend/`.
+- LAN collaboration is hosted by the Go backend and exposed through the Wails desktop runtime.
+- Collaboration is local-network, unencrypted, and does not use a ChartDB account or cloud service.
+- The host is authoritative for operation ordering and conflict detection. This is not CRDT or conflict-free editing.
+- Normal web-app usage must remain unchanged unless the requirements explicitly change.
 
-- After diagnosis, update `.ai_context/MANIFEST.md` with concrete findings and a step-by-step checklist under In-Progress Tasks.
-- As work proceeds, update the manifest immediately after completing each listed file or task, recording exact paths and remaining work.
-- When resuming, check the manifest for partially completed checklists before repeating work.
+## Graphify
 
-## Documentation authoring
+Treat `graphify-out/` as a navigation cache, not as a substitute for source code or tests. Use scoped Graphify queries when the cache is available and useful, then inspect the relevant source directly before editing or validating.
 
-- Treat existing files under `documentation/` as authoritative narrative, while ensuring updates match the actual implementation.
-- Keep section-number and database-table cross-references synchronized.
-- When documenting API endpoints, include request/response DTO shapes, permission scopes, error codes, and caching behavior.
+If code files are modified and the Graphify CLI is available, run `graphify update .` to refresh the cache. Do not treat Graphify output as proof that the application is correct.
+
+## Implementation and validation
+
+- Make the smallest complete change that satisfies the request.
+- Preserve existing project conventions and avoid unrelated cleanup.
+- Use tests for behavior changes and run the narrowest relevant checks first.
+- Prefer focused Go tests, frontend typechecks, lint, or targeted tests over a full build when they provide sufficient validation.
+- Do not compile or package unless the task requires a build artifact or build-specific validation; builds can consume substantial CPU and memory.
+- Do not claim performance improvements without repeatable before/after measurements.
+- Report manual validation as blocked when a Wails desktop runtime or second LAN client is unavailable.
+
+## Security and collaboration constraints
+
+- Require the unguessable session token in WebSocket invite paths.
+- Validate incoming message formats and sizes at the collaboration boundary.
+- Make the shared address and token explicit to users; LAN collaboration is unsuitable for untrusted networks.
+- Keep session history and acknowledged-operation guarantees consistent with the requirements: the initial design is in-memory and a host restart ends the session.
+- Do not describe last-arriving snapshots or host sequencing as conflict-free collaboration.
 
 ## Context maintenance
 
-- Record historical implementation decisions in `.ai_context/memory/CHRONICLE.md`; do not create new timestamped files in the deprecated `.ai_context/memos/` directory.
-- Update `.ai_context/REQUIREMENTS.md` when requirements or core architecture/conventions change, including its version.
-- Keep the manifest focused on the active sprint. When a task is complete, regenerate it for the next sprint according to the context architecture; do not erase useful historical rationale from the chronicle.
+- Record historical implementation decisions in `.ai_context/memory/CHRONICLE.md`.
+- Update `.ai_context/REQUIREMENTS.md` and its version when requirements or architecture change.
+- Do not create new timestamped files under deprecated `.ai_context/memos/`.
+- When a task is complete, leave the manifest ready for the next focused task without deleting useful historical rationale.
 
----
+## Skill use
 
-# Agent Skills Repository Guidance
+Use the project-local skill that matches the request. In particular:
 
-> **Scope:** This guidance was written for the [`addyosmani/agent-skills`](https://github.com/addyosmani/agent-skills) repository. It describes that repository's layout and workflows; apply its skill-specific paths and procedures only where they exist in this project.
-
-## Repository Overview
-
-A collection of skills for Claude.ai and Claude Code for senior software engineers. Skills are packaged instructions and scripts that extend Claude and your coding agents capabilities.
-
-## OpenCode Integration
-
-OpenCode uses a **skill-driven execution model** powered by the `skill` tool and this repository's `/skills` directory.
-
-### Mandatory First Skill
-
-For **every user request**, invoke the project-local `token-context-optimizer` skill before invoking any other skill or beginning task-specific work. This requirement applies even when the request appears trivial or no other skill matches. Follow its read-order, liveness, and context-management protocol; then invoke any additional skills required by the request.
-
-### Core Rules
-
-- If a task matches a skill, you MUST invoke it
-- Skills are located in `skills/<skill-name>/SKILL.md`
-- Never implement directly if a skill applies
-- Always follow the skill instructions exactly (do not partially apply them)
-
-### Intent → Skill Mapping
-
-The agent should automatically map user intent to the relevant skills:
-
-- Feature or new functionality → `spec-driven-development`, then `incremental-implementation` and `test-driven-development`
-- Planning or task breakdown → `planning-and-task-breakdown`
-- Bug, failure, or unexpected behavior → `debugging-and-error-recovery`
-- Code review → `code-review-and-quality`
-- Refactoring or simplification → `code-simplification`
-- API or interface design → `api-and-interface-design`
-- Codebase analysis or code reading → `graphify` (use the repository knowledge graph where applicable)
-- UI work → `frontend-ui-engineering`
-
-### Lifecycle Mapping (Implicit Commands)
-
-OpenCode does not support slash commands such as `/spec` or `/plan`. The agent must internally follow this lifecycle when applicable:
-
-- DEFINE → `spec-driven-development`
-- PLAN → `planning-and-task-breakdown`
-- BUILD → `incremental-implementation` and `test-driven-development`
-- VERIFY → `debugging-and-error-recovery`
-- REVIEW → `code-review-and-quality`
-
-### Execution Model
-
-For every request:
-
-1. Invoke `token-context-optimizer` first and follow its workflow.
-2. Determine which additional skills match the user's intent.
-3. Invoke those skills using the `skill` tool and follow their workflows.
-4. Apply the implicit lifecycle stages as appropriate to the task; do not expect or require slash commands.
-5. Proceed only after required definition and planning steps are complete.
-
-### Anti-Rationalization
-
-The following thoughts are incorrect and must be ignored:
-
-- "This is too small for a skill"
-- "I can just quickly implement this"
-- "I’ll gather context first"
-
-Correct behavior:
-
-- Always check for and use skills first
-
-This ensures OpenCode behaves similarly to Claude Code with full workflow enforcement.
-
-## Orchestration: Personas, Skills, and Commands
-
-This repo has three composable layers. They have different jobs and should not be confused:
-
-- **Skills** (`skills/<name>/SKILL.md`) — workflows with steps and exit criteria. The _how_. Mandatory hops when an intent matches.
-- **Personas** (`agents/<role>.md`) — roles with a perspective and an output format. The _who_.
-- **Slash commands** (`.claude/commands/*.md`) — user-facing entry points. The _when_. The orchestration layer.
-
-Composition rule: **the user (or a slash command) is the orchestrator. Personas do not invoke other personas.** A persona may invoke skills.
-
-The only multi-persona orchestration pattern this repo endorses is **parallel fan-out with a merge step** — used by `/ship` to run `code-reviewer`, `security-auditor`, and `test-engineer` concurrently and synthesize their reports. Do not build a "router" persona that decides which other persona to call; that's the job of slash commands and intent mapping.
-
-See [docs/agents.md](docs/agents.md) for the decision matrix and [references/orchestration-patterns.md](references/orchestration-patterns.md) for the full pattern catalog.
-
-**Claude Code interop:** the personas in `agents/` work as Claude Code subagents (auto-discovered from this plugin's `agents/` directory) and as Agent Teams teammates (referenced by name when spawning). Two platform constraints align with our rules: subagents cannot spawn other subagents, and teams cannot nest. Plugin agents silently ignore the `hooks`, `mcpServers`, and `permissionMode` frontmatter fields.
-
-## Creating a New Skill
-
-> **Before you start:** run the pre-flight checks in [CONTRIBUTING.md](CONTRIBUTING.md#before-proposing-a-new-skill), search the catalog, check open PRs (`gh pr list --state open`), confirm the idea fits [docs/skill-anatomy.md](docs/skill-anatomy.md), and justify the gap in your PR description. Most new-skill ideas overlap an existing skill or an open PR; prefer extending an existing skill over adding a near-duplicate. CONTRIBUTING.md is the single source of truth for this workflow.
-
-Skills in this repo are markdown-first: each lives at `skills/<kebab-case-name>/SKILL.md` with YAML frontmatter (`name`, `description`) and follows the section anatomy (Overview, When to Use, Process, Common Rationalizations, Red Flags, Verification). Add a `scripts/` directory only when the skill ships runnable helpers; most skills are markdown only, and there are no per-skill zip packages.
-
-For the full format, naming conventions, frontmatter rules, supporting-file thresholds, and writing principles, see `docs/skill-anatomy.md`, the single source of truth for skill structure. Do not restate that guidance here.
+- `token-context-optimizer` for every request, before task-specific work.
+- `spec-driven-development` and `planning-and-task-breakdown` for unclear or substantial new work.
+- `incremental-implementation` for changes spanning multiple files or slices.
+- `test-driven-development` for behavior changes and bug fixes.
+- `debugging-and-error-recovery` for failures or unexpected behavior.
+- `frontend-ui-engineering` for frontend interface work.
+- `api-and-interface-design` for public or cross-module contracts.
+- `code-review-and-quality` before merging or when reviewing a diff.
+- `graphify` when using the repository knowledge graph.

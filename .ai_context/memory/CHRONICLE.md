@@ -448,3 +448,73 @@ Added a destructive toast for local collaboration diagram-send failures, formatt
 
 - Focused collaboration Vitest: 2 files, 7 tests passed.
 - Targeted ESLint and `npx tsc -b` passed.
+
+## 2026-11-04 — Build resource rule and platform instructions
+
+### Task Summary & Timestamp
+
+Added a project rule to avoid unnecessary compilation because builds can consume enough resources to freeze the operating system. Updated the root README with frontend and Wails desktop build instructions. Timestamp: 2026-11-04.
+
+### Files Modified
+
+- `RULES.md`
+- `README.md`
+- `.ai_context/MANIFEST.md`
+- `.ai_context/memory/CHRONICLE.md`
+
+### Technical Additions
+
+- Documented Node.js and Bun runtime prerequisites, npm/pnpm/Yarn/Bun workflows, optional environment-variable syntax, and native Windows/macOS/Linux Wails commands.
+- Clarified that compilation should be reserved for required artifacts or build-specific validation and that increasing Node heap size can worsen system pressure.
+
+### Anti-Patterns Avoided
+
+- Did not run the resource-intensive frontend or Wails compiler for a documentation-only change.
+- Kept the existing Wails v2 build flow and documented cross-compilation as host/platform dependent rather than guaranteeing unsupported targets.
+
+### Validation
+
+- `git diff --check` passed.
+
+## 2026-11-04 — Project guidance cleanup
+
+### Task Summary & Timestamp
+
+Removed unrelated repository instructions from the project guidance and aligned the rules with ChartDB Desktop. Timestamp: 2026-11-04.
+
+### Files Modified
+
+- `AGENTS.md`
+- `RULES.md`
+- `.ai_context/MANIFEST.md`
+- `.ai_context/memory/CHRONICLE.md`
+
+### Technical Additions
+
+- Replaced the Budget Request System and external agent-skills repository guidance with ChartDB Wails, Go, frontend, LAN collaboration, Graphify, validation, and context-maintenance guidance.
+- Removed documentation/API rules that do not apply to this repository while preserving desktop collaboration security and resource safeguards.
+
+### Anti-Patterns Avoided
+
+- Did not retain references to external repository paths, OpenCode-specific orchestration, personas, slash commands, or unrelated documentation workflows.
+- Did not change application source code or run an unnecessary compilation/package build.
+
+## 2026-11-04 — Commit hygiene rule
+
+### Task Summary & Timestamp
+
+Added repository guidance for concise imperative commit messages and local-only commits unless pushing is explicitly requested. Timestamp: 2026-11-04.
+
+### Files Modified
+
+- `RULES.md`
+- `.ai_context/MANIFEST.md`
+- `.ai_context/memory/CHRONICLE.md`
+
+### Technical Additions
+
+- Added a governance rule covering commit message quality and push authorization.
+
+### Anti-Patterns Avoided
+
+- Preserved existing uncommitted work and did not push the resulting commit.
