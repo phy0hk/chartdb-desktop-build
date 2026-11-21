@@ -313,6 +313,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         showFilter,
         setShowFilter,
         setEditTableModeTable,
+        editTableModeTable,
         tempFloatingEdge,
         endFloatingEdgeCreation,
         hoveringTableId,
@@ -363,8 +364,10 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
             string,
             {
                 name: string;
+                color?: string;
                 position?: { x: number; y: number };
                 selection?: string[];
+                editing?: string;
             }
         >
     >({});
@@ -379,6 +382,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
         >
     >({});
     const remotePreviewTimersRef = useRef(new Map<string, number>());
+    const remoteCursorTimersRef = useRef(new Map<string, number>());
     const remotePreviewsRef = useRef(remotePreviews);
     remotePreviewsRef.current = remotePreviews;
 
@@ -397,6 +401,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                     id?: string;
                     clientId?: string;
                     name?: string;
+                    color?: string;
                     position?: { x: number; y: number };
                     selection?: string[];
                     targetId?: string;
@@ -408,6 +413,10 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                     window.clearTimeout(timer);
                 }
                 remotePreviewTimersRef.current.clear();
+                for (const timer of remoteCursorTimersRef.current.values()) {
+                    window.clearTimeout(timer);
+                }
+                remoteCursorTimersRef.current.clear();
                 setRemotePreviews({});
                 setCollaboratorCursors({});
                 return;
@@ -415,6 +424,9 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
             const peerId = peer?.clientId ?? peer?.id;
             if (!peerId) return;
             if (peer.type === 'leave') {
+                const cursorTimer = remoteCursorTimersRef.current.get(peerId);
+                if (cursorTimer !== undefined) window.clearTimeout(cursorTimer);
+                remoteCursorTimersRef.current.delete(peerId);
                 for (const [targetId, preview] of Object.entries(
                     remotePreviewsRef.current
                 )) {
@@ -474,6 +486,23 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                     remotePreviewTimersRef.current.set(peer.targetId, timer);
                 }
             }
+            if (peer.type === 'cursor' && peer.position) {
+                const existingTimer = remoteCursorTimersRef.current.get(peerId);
+                if (existingTimer !== undefined)
+                    window.clearTimeout(existingTimer);
+                const timer = window.setTimeout(() => {
+                    setCollaboratorCursors((current) => {
+                        const peerState = current[peerId];
+                        if (!peerState) return current;
+                        return {
+                            ...current,
+                            [peerId]: { ...peerState, position: undefined },
+                        };
+                    });
+                    remoteCursorTimersRef.current.delete(peerId);
+                }, 15000);
+                remoteCursorTimersRef.current.set(peerId, timer);
+            }
             setCollaboratorCursors((current) => {
                 if (peer.type === 'leave') {
                     const remaining = { ...current };
@@ -485,8 +514,13 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                     ...current,
                     [peerId]: {
                         name: peer.name ?? previous?.name ?? 'Collaborator',
+                        color: peer.color ?? previous?.color,
                         position: peer.position ?? previous?.position,
                         selection: peer.selection ?? previous?.selection,
+                        editing:
+                            peer.type === 'editing'
+                                ? peer.targetId || undefined
+                                : previous?.editing,
                     },
                 };
             });
@@ -501,6 +535,14 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
             previewTimers.clear();
         };
     }, []);
+
+    useEffect(() => {
+        window.dispatchEvent(
+            new CustomEvent('collaboration:editing', {
+                detail: editTableModeTable?.tableId ?? '',
+            })
+        );
+    }, [editTableModeTable?.tableId]);
 
     useEffect(() => {
         setIsInitialLoadingNodes(true);
@@ -1072,7 +1114,10 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                         change.position?.y !== undefined &&
                         !isNaN(change.position.x) &&
                         !isNaN(change.position.y)) ||
-                    (change.type === 'dimensions' && change.resizing) ||
+                    (change.type === 'dimensions' &&
+                        (change.resizing === true ||
+                            (change.resizing === false &&
+                                !!change.dimensions))) ||
                     change.type === 'remove'
                 ) {
                     const node = getNode(change.id);
@@ -1106,7 +1151,10 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
             ) as NodeRemoveChange[];
 
             const sizeChanges: NodeDimensionChange[] = relevantChanges.filter(
-                (change) => change.type === 'dimensions' && change.resizing
+                (change) =>
+                    change.type === 'dimensions' &&
+                    (change.resizing === true ||
+                        (change.resizing === false && !!change.dimensions))
             ) as NodeDimensionChange[];
 
             return {
@@ -1713,9 +1761,9 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
     const nodesWithCursor = useMemo(() => {
         const previewNodes = nodes.map((node) => {
             const preview = remotePreviews[node.id];
-            const selectedBy = Object.values(collaboratorCursors)
-                .filter((peer) => peer.selection?.includes(node.id))
-                .map((peer) => peer.name);
+            const selectedBy = Object.values(collaboratorCursors).filter(
+                (peer) => peer.selection?.includes(node.id)
+            );
             if ((!preview || node.dragging) && selectedBy.length === 0) {
                 return node;
             }
@@ -1730,7 +1778,7 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                     ...(!node.dragging ? preview?.dimensions : undefined),
                     ...(selectedBy.length > 0
                         ? {
-                              outline: '2px solid hsl(var(--primary))',
+                              outline: `2px solid ${selectedBy[0].color ?? 'hsl(var(--primary))'}`,
                               outlineOffset: '2px',
                           }
                         : undefined),
@@ -1838,21 +1886,61 @@ export const Canvas: React.FC<CanvasProps> = ({ initialTables }) => {
                     return (
                         <div
                             key={id}
+                            data-testid="remote-cursor"
                             className="pointer-events-none absolute z-[9999]"
                             style={{
                                 left: screen.x - (canvasBounds?.left ?? 0),
                                 top: screen.y - (canvasBounds?.top ?? 0),
                             }}
                         >
-                            <div className="origin-center rotate-[225deg] text-lg leading-none text-primary">
+                            <div
+                                className="origin-center rotate-[225deg] text-lg leading-none"
+                                style={{
+                                    color: peer.color ?? 'hsl(var(--primary))',
+                                }}
+                            >
                                 ➤
                             </div>
-                            <span className="rounded bg-primary px-1.5 py-0.5 text-xs text-primary-foreground">
+                            <span
+                                className="rounded px-1.5 py-0.5 text-xs text-white"
+                                style={{
+                                    backgroundColor:
+                                        peer.color ?? 'hsl(var(--primary))',
+                                }}
+                            >
                                 {peer.name}
                             </span>
                         </div>
                     );
                 })}
+                {Object.entries(collaboratorCursors).flatMap(([id, peer]) =>
+                    (peer.selection ?? []).map((targetId) => {
+                        const node = nodes.find((item) => item.id === targetId);
+                        if (!node) return [];
+                        const screen = flowToScreenPosition(node.position);
+                        const canvasBounds =
+                            containerRef.current?.getBoundingClientRect();
+                        return (
+                            <div
+                                key={`${id}-${targetId}`}
+                                data-testid={`remote-selection-${targetId}`}
+                                className="pointer-events-none absolute z-[9998] max-w-[180px] truncate rounded px-1.5 py-0.5 text-xs text-white"
+                                style={{
+                                    left: screen.x - (canvasBounds?.left ?? 0),
+                                    top:
+                                        screen.y -
+                                        (canvasBounds?.top ?? 0) -
+                                        20,
+                                    backgroundColor:
+                                        peer.color ?? 'hsl(var(--primary))',
+                                }}
+                            >
+                                {peer.name}
+                                {peer.editing === targetId ? ' · editing' : ''}
+                            </div>
+                        );
+                    })
+                )}
                 <ReactFlow
                     onlyRenderVisibleElements
                     colorMode={effectiveTheme}

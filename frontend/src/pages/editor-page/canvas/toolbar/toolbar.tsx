@@ -44,6 +44,7 @@ import {
 } from '@/lib/collaboration/diagram-operations';
 import { diagramSchema, type Diagram } from '@/lib/domain/diagram';
 import { formatCollaborationError } from '@/lib/collaboration/format-collaboration-error';
+import { COLLABORATION_URL } from '@/lib/env';
 
 const convertToPercentage = (value: number) => `${Math.round(value * 100)}%`;
 
@@ -78,11 +79,24 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
     const { toast } = useToast();
     const { currentDiagram, updateDiagramData, setCollaborationSynchronized } =
         useChartDB();
+    const applyingRemoteRef = useRef(false);
     const currentDiagramRef = useRef(currentDiagram);
-    currentDiagramRef.current = currentDiagram;
+    // While a remote/welcome apply is in flight, React may briefly re-render
+    // with the pre-apply diagram. Do not let that stale value overwrite the
+    // authoritative snapshot we are about to persist.
+    if (!applyingRemoteRef.current) currentDiagramRef.current = currentDiagram;
     const [collaborationUrl, setCollaborationUrl] = useState('');
     const [collaborationUrls, setCollaborationUrls] = useState<string[]>([]);
     const [collaborationStatus, setCollaborationStatus] = useState('');
+    const [connectionState, setConnectionState] = useState<
+        'offline' | 'connecting' | 'connected' | 'reconnecting' | 'ended'
+    >('offline');
+    const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
+    const [lastMessageAt, setLastMessageAt] = useState<number | null>(null);
+    const [peers, setPeers] = useState<
+        Array<{ clientId: string; name: string; color: string }>
+    >([]);
+    const lastMessageAtRef = useRef<number | null>(null);
     const [participantName, setParticipantName] = useState(
         () => `Guest-${Math.random().toString(36).slice(2, 7)}`
     );
@@ -110,14 +124,54 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
             {
                 payload: DiagramOperationPayload;
                 entityVersions: Record<string, number>;
+                local?: boolean;
             }
         >()
     );
-    const applyingRemoteRef = useRef(false);
     const resyncRequestedRef = useRef(false);
     const welcomeTaskRef = useRef(Promise.resolve());
     const skipDiagramRef = useRef('');
     const flushLocalRef = useRef<() => void>(() => undefined);
+
+    const peerColors = [
+        '#0ea5e9',
+        '#f97316',
+        '#22c55e',
+        '#a855f7',
+        '#e11d48',
+        '#14b8a6',
+        '#eab308',
+        '#6366f1',
+    ];
+    const colorForClient = (clientId: string) => {
+        let hash = 0;
+        for (let i = 0; i < clientId.length; i++) {
+            hash = (hash * 31 + clientId.charCodeAt(i)) >>> 0;
+        }
+        return peerColors[hash % peerColors.length];
+    };
+
+    const resetPeers = () => setPeers([]);
+    const trackPeer = (clientId: string, name: string) => {
+        setPeers((current) => {
+            const existing = current.find((peer) => peer.clientId === clientId);
+            if (existing?.name === name) return current;
+            return [
+                ...current.filter((peer) => peer.clientId !== clientId),
+                { clientId, name, color: colorForClient(clientId) },
+            ];
+        });
+    };
+    const removePeer = (clientId: string) =>
+        setPeers((current) =>
+            current.filter((peer) => peer.clientId !== clientId)
+        );
+
+    const noteMessage = () => {
+        const now = Date.now();
+        lastMessageAtRef.current = now;
+        setLastMessageAt(now);
+    };
 
     const requestResync = () => {
         const client = clientRef.current;
@@ -161,10 +215,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                     baselineDiagramRef.current,
                     item.payload
                 );
-                const visible = applyDiagramOperation(
-                    currentDiagramRef.current,
-                    item.payload
-                );
                 baselineDiagramRef.current = canonical;
                 for (const [entityId, expectedVersion] of Object.entries(
                     item.entityVersions
@@ -176,9 +226,21 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                 }
                 revisionRef.current = nextRevision;
                 operationsByRevisionRef.current.delete(nextRevision);
-                currentDiagramRef.current = visible;
-                skipDiagramRef.current = JSON.stringify(visible);
-                await updateDiagramData(visible);
+                if (!item.local) {
+                    // Only peer operations are re-applied to the visible
+                    // diagram. Re-applying an acknowledgement would overwrite
+                    // any local edit made while it was in flight.
+                    const visible = applyDiagramOperation(
+                        currentDiagramRef.current,
+                        item.payload
+                    );
+                    currentDiagramRef.current = visible;
+                    skipDiagramRef.current = JSON.stringify(visible);
+                    await updateDiagramData(visible, {
+                        forceUpdateStorage: true,
+                        preserveHistory: true,
+                    });
+                }
             }
             sessionReadyRef.current =
                 !resyncRequestedRef.current &&
@@ -198,13 +260,18 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
     const initializeWelcome = async (
         message: Extract<CollaborationMessage, { type: 'welcome' }>
     ) => {
+        applyingRemoteRef.current = true;
         setCollaborationSynchronized(false);
         const snapshot = diagramSchema.parse(
             reviveCollaborationDates(message.payload)
         );
         documentIdRef.current = message.documentId;
+        // Welcome carries the BASE snapshot revision. Replayed operations move
+        // the client forward to targetRevision; treating the welcome revision
+        // as the final revision would silently drop the whole replay.
         revisionRef.current = message.revision ?? 0;
-        targetRevisionRef.current = message.revision ?? 0;
+        targetRevisionRef.current =
+            message.targetRevision ?? message.revision ?? 0;
         operationsByRevisionRef.current.clear();
         entityVersionsRef.current = seedEntityVersions(snapshot);
         pendingOperationRef.current = null;
@@ -215,7 +282,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
         if (shouldReplace) {
             currentDiagramRef.current = snapshot;
             skipDiagramRef.current = JSON.stringify(snapshot);
-            await updateDiagramData(snapshot);
+            await updateDiagramData(snapshot, {
+                forceUpdateStorage: true,
+                preserveHistory: true,
+            });
         }
         sessionReadyRef.current =
             revisionRef.current >= targetRevisionRef.current;
@@ -223,6 +293,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
         setCollaborationStatus(
             sessionReadyRef.current ? 'Connected' : 'Synchronizing'
         );
+        applyingRemoteRef.current = false;
         clientRef.current?.send({
             protocolVersion: collaborationProtocolVersion,
             type: 'name',
@@ -261,9 +332,11 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
     };
 
     const handleMessage = (message: CollaborationMessage) => {
+        noteMessage();
         if (message.type === 'welcome') {
             welcomeTaskRef.current = initializeWelcome(message).catch(
                 (error: unknown) => {
+                    applyingRemoteRef.current = false;
                     sessionReadyRef.current = false;
                     setCollaborationSynchronized(false);
                     setCollaborationStatus(
@@ -274,6 +347,30 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
             );
             return;
         }
+        if (message.type === 'session_ended') {
+            const pending = pendingOperationRef.current;
+            if (pending) window.clearTimeout(pending.timeout);
+            pendingOperationRef.current = null;
+            sessionReadyRef.current = false;
+            setCollaborationSynchronized(false);
+            setConnectionState('ended');
+            setCollaborationStatus(
+                message.message || 'Collaboration session ended by the host'
+            );
+            resetPeers();
+            window.dispatchEvent(
+                new CustomEvent('collaboration:peer', {
+                    detail: { type: 'reset' },
+                })
+            );
+            clientRef.current?.close();
+            return;
+        }
+        if (message.type === 'name') {
+            trackPeer(message.clientId, message.name);
+        } else if (message.type === 'leave') {
+            removePeer(message.clientId);
+        }
         if (
             message.type === 'cursor' ||
             message.type === 'name' ||
@@ -283,7 +380,14 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
             message.type === 'leave'
         ) {
             window.dispatchEvent(
-                new CustomEvent('collaboration:peer', { detail: message })
+                new CustomEvent('collaboration:peer', {
+                    detail: {
+                        ...message,
+                        color: message.clientId
+                            ? colorForClient(message.clientId)
+                            : undefined,
+                    },
+                })
             );
             return;
         }
@@ -303,6 +407,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
             operationsByRevisionRef.current.set(message.revision, {
                 payload: pending.payload,
                 entityVersions: pending.entityVersions,
+                local: true,
             });
             void drainOperations();
             return;
@@ -312,7 +417,30 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
             if (pending && pending.id === message.id) {
                 window.clearTimeout(pending.timeout);
                 pendingOperationRef.current = null;
-                requestResync();
+                const detail = message.lastWriter
+                    ? `${message.message} (last writer: ${message.lastWriter})`
+                    : message.message;
+                toast({
+                    title: 'Change rejected by host',
+                    description: (
+                        <span className="whitespace-pre-wrap break-words">
+                            {detail}
+                        </span>
+                    ),
+                    variant: 'destructive',
+                });
+                setCollaborationStatus(`Conflict: ${detail}`);
+                // Host is authoritative: roll the optimistic local change back
+                // to the last acknowledged state, then resynchronize.
+                const canonical = baselineDiagramRef.current;
+                currentDiagramRef.current = canonical;
+                skipDiagramRef.current = '';
+                void updateDiagramData(canonical, {
+                    forceUpdateStorage: true,
+                    preserveHistory: true,
+                })
+                    .catch(() => undefined)
+                    .finally(() => requestResync());
             }
             return;
         }
@@ -366,22 +494,53 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                 },
             });
         };
+        const sendEditing = (event: Event) => {
+            const targetId = (event as CustomEvent<string>).detail;
+            client.send({
+                protocolVersion: collaborationProtocolVersion,
+                type: 'editing',
+                clientId: participantIdRef.current,
+                targetId,
+            });
+        };
         window.addEventListener('collaboration:cursor', sendCursor);
         window.addEventListener('collaboration:selection', sendSelection);
         window.addEventListener('collaboration:preview', sendPreview);
+        window.addEventListener('collaboration:editing', sendEditing);
         const unsubscribe = client.subscribe((event) => {
             if (event.type === 'status') {
                 setCollaborationStatus(
                     event.status === 'error'
                         ? (event.error ?? 'Connection failed')
-                        : event.status
+                        : event.status === 'reconnecting'
+                          ? `Reconnecting (attempt ${event.attempt ?? 1})`
+                          : event.status === 'connected'
+                            ? 'Connected'
+                            : event.status === 'disconnected'
+                              ? (event.error ?? 'Disconnected')
+                              : event.status
                 );
+                if (event.status === 'connecting')
+                    setConnectionState('connecting');
+                if (event.status === 'connected')
+                    setConnectionState('connected');
+                if (event.status === 'reconnecting') {
+                    setConnectionState('reconnecting');
+                    sessionReadyRef.current = false;
+                    setCollaborationSynchronized(false);
+                }
                 if (
                     event.status === 'disconnected' ||
                     event.status === 'error'
                 ) {
                     sessionReadyRef.current = false;
                     setCollaborationSynchronized(false);
+                    setConnectionState(
+                        event.error?.startsWith('Session ended')
+                            ? 'ended'
+                            : 'offline'
+                    );
+                    resetPeers();
                     window.dispatchEvent(
                         new CustomEvent('collaboration:peer', {
                             detail: { type: 'reset' },
@@ -400,6 +559,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                 sendSelection
             );
             window.removeEventListener('collaboration:preview', sendPreview);
+            window.removeEventListener('collaboration:editing', sendEditing);
         };
         const hello =
             role === 'host'
@@ -421,6 +581,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                   };
         try {
             await client.connect(url, hello);
+            trackPeer(participantIdRef.current, participantNameRef.current);
+            setCollaborationUrl(url);
         } catch (error) {
             setCollaborationStatus(String(error));
             throw error;
@@ -432,6 +594,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
         if (!client || !sessionReadyRef.current || pendingOperationRef.current)
             return;
         const current = currentDiagramRef.current;
+        // A welcome/resync is still being applied when the provider state has
+        // not caught up with the authoritative baseline yet. Never diff across
+        // two different diagram identities.
+        if (current.id !== baselineDiagramRef.current.id) return;
         const serialized = JSON.stringify(current);
         if (serialized === skipDiagramRef.current) {
             skipDiagramRef.current = '';
@@ -504,19 +670,34 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
             );
             return;
         }
-        if (!window.go?.main?.App) {
-            setCollaborationStatus(
-                'Collaboration requires the Wails desktop app.'
-            );
-            return;
-        }
         try {
-            const session = await window.go.main.App.StartCollaboration();
+            const session = window.go?.main?.App
+                ? await window.go.main.App.StartCollaboration()
+                : COLLABORATION_URL
+                  ? { url: COLLABORATION_URL, urls: [COLLABORATION_URL] }
+                  : null;
+            if (!session) {
+                setCollaborationStatus(
+                    'Set VITE_COLLABORATION_URL to a reachable collaboration service for web hosting.'
+                );
+                return;
+            }
             hostRef.current = true;
-            const urls = session.urls?.length ? session.urls : [session.url];
-            setCollaborationUrls(urls);
+            baselineDiagramRef.current = currentDiagramRef.current;
+            entityVersionsRef.current = seedEntityVersions(
+                currentDiagramRef.current
+            );
+            documentIdRef.current = currentDiagramRef.current.id;
+            const inviteUrls = session.urls?.length
+                ? session.urls
+                : [session.url];
+            setCollaborationUrls(inviteUrls);
+            const connectionUrls = [
+                session.url,
+                ...inviteUrls.filter((url) => url !== session.url),
+            ];
             let lastError: unknown;
-            for (const url of urls) {
+            for (const url of connectionUrls) {
                 try {
                     await connectCollaboration(url, 'host');
                     setCollaborationUrl(url);
@@ -525,7 +706,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                     lastError = error;
                 }
             }
-            await window.go.main.App.StopCollaboration();
+            if (window.go?.main?.App) {
+                await window.go.main.App.StopCollaboration();
+            }
             hostRef.current = false;
             throw (
                 lastError ?? new Error('Could not connect to any host address')
@@ -558,10 +741,38 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
         hostRef.current = false;
         sessionReadyRef.current = false;
         setCollaborationSynchronized(true);
+        setConnectionState('offline');
         if (window.go?.main?.App) await window.go.main.App.StopCollaboration();
         setCollaborationUrl('');
         setCollaborationUrls([]);
         setCollaborationStatus('');
+        resetPeers();
+        setLastMessageAt(null);
+        lastMessageAtRef.current = null;
+    };
+
+    // Leave only the current socket; keep the URL so Reconnect can rejoin.
+    const leaveSession = () => {
+        const pending = pendingOperationRef.current;
+        if (pending) window.clearTimeout(pending.timeout);
+        pendingOperationRef.current = null;
+        unsubscribeRef.current?.();
+        unsubscribeRef.current = null;
+        clientRef.current?.close();
+        clientRef.current = null;
+        sessionReadyRef.current = false;
+        setCollaborationSynchronized(false);
+        setConnectionState('offline');
+        resetPeers();
+        setCollaborationStatus('Disconnected');
+    };
+
+    const reconnectCollaboration = () => {
+        if (!collaborationUrl) return;
+        const role = hostRef.current ? 'host' : 'participant';
+        void connectCollaboration(collaborationUrl, role).catch(
+            () => undefined
+        );
     };
 
     const toggleFilter = useCallback(() => {
@@ -663,6 +874,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                     </Tooltip>
                     <Separator orientation="vertical" />
                     <ToolbarButton
+                        data-testid="collab-start"
+                        aria-label={
+                            collaborationUrl
+                                ? 'Stop collaboration'
+                                : 'Start collaboration'
+                        }
                         onClick={
                             collaborationUrl
                                 ? stopCollaboration
@@ -671,11 +888,23 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                     >
                         <Users />
                     </ToolbarButton>
-                    <ToolbarButton onClick={joinCollaboration}>
+                    <ToolbarButton
+                        data-testid="collab-join"
+                        onClick={joinCollaboration}
+                    >
                         Join
+                    </ToolbarButton>
+                    <ToolbarButton
+                        data-testid="collab-diagnostics-toggle"
+                        aria-label="Toggle collaboration diagnostics"
+                        aria-expanded={diagnosticsOpen}
+                        onClick={() => setDiagnosticsOpen((open) => !open)}
+                    >
+                        ⓘ
                     </ToolbarButton>
                     {collaborationUrl ? (
                         <Button
+                            data-testid="collab-name"
                             variant="ghost"
                             onClick={() => {
                                 const name = window.prompt(
@@ -684,6 +913,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                                 );
                                 if (!name?.trim()) return;
                                 setParticipantName(name.trim());
+                                trackPeer(
+                                    participantIdRef.current,
+                                    name.trim()
+                                );
                                 clientRef.current?.send({
                                     protocolVersion:
                                         collaborationProtocolVersion,
@@ -710,7 +943,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                         </Button>
                     ) : null}
                     {collaborationStatus ? (
-                        <span className="px-2 text-xs">
+                        <span
+                            data-testid="collab-state"
+                            className="px-2 text-xs"
+                        >
                             {collaborationStatus}
                         </span>
                     ) : null}
@@ -808,6 +1044,72 @@ export const Toolbar: React.FC<ToolbarProps> = ({ readonly }) => {
                     </Tooltip>
                 </CardContent>
             </Card>
+            {diagnosticsOpen ? (
+                <section
+                    data-testid="collab-diagnostics"
+                    aria-label="Collaboration diagnostics"
+                    className="mt-1 rounded-md border bg-card p-2 text-xs"
+                >
+                    <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+                        <dt className="font-medium text-muted-foreground">
+                            State
+                        </dt>
+                        <dd data-testid="collab-connection-state">
+                            {connectionState}
+                        </dd>
+                        <dt className="font-medium text-muted-foreground">
+                            Status
+                        </dt>
+                        <dd>{collaborationStatus || '—'}</dd>
+                        <dt className="font-medium text-muted-foreground">
+                            URL
+                        </dt>
+                        <dd className="break-all">{collaborationUrl || '—'}</dd>
+                        <dt className="font-medium text-muted-foreground">
+                            Revision
+                        </dt>
+                        <dd data-testid="collab-revision">
+                            {revisionRef.current} / {targetRevisionRef.current}
+                        </dd>
+                        <dt className="font-medium text-muted-foreground">
+                            Peers
+                        </dt>
+                        <dd data-testid="collab-presence">
+                            {peers.length === 0
+                                ? '—'
+                                : peers.map((peer) => peer.name).join(', ')}
+                        </dd>
+                        <dt className="font-medium text-muted-foreground">
+                            Last message
+                        </dt>
+                        <dd data-testid="collab-last-message">
+                            {lastMessageAt
+                                ? new Date(lastMessageAt).toLocaleTimeString()
+                                : '—'}
+                        </dd>
+                    </dl>
+                    <div className="mt-2 flex gap-2">
+                        <Button
+                            data-testid="collab-disconnect"
+                            variant="ghost"
+                            size="sm"
+                            disabled={!collaborationUrl}
+                            onClick={leaveSession}
+                        >
+                            Disconnect
+                        </Button>
+                        <Button
+                            data-testid="collab-reconnect"
+                            variant="ghost"
+                            size="sm"
+                            disabled={!collaborationUrl}
+                            onClick={reconnectCollaboration}
+                        >
+                            Reconnect
+                        </Button>
+                    </div>
+                </section>
+            ) : null}
         </div>
     );
 };

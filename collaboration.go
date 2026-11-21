@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -37,6 +38,10 @@ type collaborationPeer struct {
 	closeMu  sync.Once
 	clientID string
 	role     string
+	name     string
+	// replaced is set when a newer socket takes over the same client ID. The
+	// old peer's cleanup must then avoid broadcasting a misleading leave.
+	replaced bool
 }
 
 func (p *collaborationPeer) shutdown() {
@@ -87,11 +92,11 @@ func (h *collaborationHub) serve(w http.ResponseWriter, r *http.Request) {
 		outbound: make(chan []byte, collaborationQueueSize),
 		done:     make(chan struct{}),
 	}
-	if hasProtocolVersion(firstMessage) {
-		h.serveTyped(peer, firstMessage)
+	if !hasProtocolVersion(firstMessage) {
+		h.writeHandshakeError(conn, "protocol_version_required")
 		return
 	}
-	h.serveLegacy(peer, firstMessage)
+	h.serveTyped(peer, firstMessage)
 }
 
 func (p *collaborationPeer) writePump() {
@@ -149,9 +154,15 @@ func (h *collaborationHub) broadcast(sender *collaborationPeer, data []byte) {
 
 func (h *collaborationHub) removePeer(peer *collaborationPeer) {
 	h.mu.Lock()
+	if peer.replaced {
+		h.mu.Unlock()
+		peer.shutdown()
+		return
+	}
 	delete(h.clients, peer)
 	var remaining []*collaborationPeer
-	if peer.role == "host" && h.mode == "typed" {
+	hostLeft := peer.role == "host" && h.mode == "typed"
+	if hostLeft {
 		h.ended = true
 		for other := range h.clients {
 			delete(h.clients, other)
@@ -164,7 +175,7 @@ func (h *collaborationHub) removePeer(peer *collaborationPeer) {
 	}
 	h.mu.Unlock()
 	peer.shutdown()
-	if peer.role != "" && peer.role != "host" {
+	if peer.role != "" && peer.role != "host" && !hostLeft {
 		leave, err := encodeCollaborationMessage(collaborationMessage{
 			ProtocolVersion: collaborationProtocolVersion,
 			Type:            "leave",
@@ -176,11 +187,30 @@ func (h *collaborationHub) removePeer(peer *collaborationPeer) {
 			}
 		}
 	}
-	if peer.role == "host" && h.mode == "typed" {
-		for _, other := range remaining {
-			other.shutdown()
+	if hostLeft {
+		h.notifySessionEnded(remaining)
+	}
+}
+
+// notifySessionEnded tells participants why the session closed before their
+// sockets are shut down, so the UI can show a clear, actionable state.
+func (h *collaborationHub) notifySessionEnded(peers []*collaborationPeer) {
+	ended, err := encodeCollaborationMessage(collaborationMessage{
+		ProtocolVersion: collaborationProtocolVersion,
+		Type:            "session_ended",
+		Message:         "The host ended the collaboration session",
+	})
+	if err == nil {
+		for _, peer := range peers {
+			enqueueCollaborationMessageWait(peer, ended, writeWait)
 		}
 	}
+	// Give the write pumps time to flush the typed notice before closing.
+	time.AfterFunc(250*time.Millisecond, func() {
+		for _, peer := range peers {
+			peer.shutdown()
+		}
+	})
 }
 
 func startCollaboration() (CollaborationSession, error) {
@@ -213,8 +243,11 @@ func startCollaboration() (CollaborationSession, error) {
 	for _, ip := range ips {
 		urls = append(urls, fmt.Sprintf("ws://%s:%d/collaborate/%s", ip, port, token))
 	}
+	// Keep the host's own WebSocket on loopback. Interface addresses can point
+	// at Docker/WSL/VM adapters that are not reachable from the Wails WebView,
+	// while the advertised URLs remain available for other devices.
 	return CollaborationSession{
-		URL:     urls[0],
+		URL:     fmt.Sprintf("ws://127.0.0.1:%d/collaborate/%s", port, token),
 		URLs:    urls,
 		Token:   token,
 		stop:    stop,
@@ -249,7 +282,7 @@ func localIPv4Addresses() ([]string, error) {
 	}
 	var privateAddresses, otherAddresses []string
 	for _, iface := range interfaces {
-		if iface.Flags&net.FlagUp == 0 || iface.Flags&net.FlagLoopback != 0 {
+		if iface.Flags&net.FlagUp == 0 || iface.Flags&net.FlagLoopback != 0 || isVirtualNetworkInterface(iface.Name) {
 			continue
 		}
 		addrs, err := iface.Addrs()
@@ -268,6 +301,28 @@ func localIPv4Addresses() ([]string, error) {
 		}
 	}
 	return uniqueStrings(append(privateAddresses, otherAddresses...)), nil
+}
+
+// isVirtualNetworkInterface filters adapters that are not reachable by another
+// device on the LAN (Docker/WSL/VM/bridge/VPN/Tailscale). Advertising them as
+// invite URLs produces unusable addresses and, in WSL2, breaks the host itself.
+func isVirtualNetworkInterface(name string) bool {
+	lower := strings.ToLower(name)
+	virtualPrefixes := []string{
+		"veth", "docker", "br-", "virbr", "vmnet", "vboxnet", "hyper-v virtual",
+		"wsl", "tailscale", "zerotier", "utun", "tun", "tap", "vpn", "vswitch",
+		"lxc", "cni", "flannel", "cali", "cni0", "bridge", "bond", "dummy", "lo:",
+	}
+	for _, prefix := range virtualPrefixes {
+		if strings.HasPrefix(lower, prefix) {
+			return true
+		}
+	}
+	virtualExact := map[string]bool{
+		"docker0": true, "virbr0": true, "vmnet1": true, "vmnet8": true,
+		"tailscale0": true, "zerotier1": true, "wsl0": true, "veth0": true,
+	}
+	return virtualExact[lower]
 }
 
 func uniqueStrings(values []string) []string {

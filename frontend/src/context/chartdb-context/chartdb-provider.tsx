@@ -1881,46 +1881,55 @@ export const ChartDBProvider: React.FC<
             : undefined;
     }, [highlightedCustomTypeId, customTypes]);
 
-    const loadDiagramFromData: ChartDBContext['loadDiagramFromData'] =
-        useCallback(
-            (diagram) => {
-                setDiagramId(diagram.id);
-                setDiagramName(diagram.name);
-                setDatabaseType(diagram.databaseType);
-                setDatabaseEdition(diagram.databaseEdition);
-                setTables(diagram.tables ?? []);
-                setRelationships(diagram.relationships ?? []);
-                setDependencies(diagram.dependencies ?? []);
-                setAreas(diagram.areas ?? []);
-                setCustomTypes(diagram.customTypes ?? []);
-                setDiagramCreatedAt(diagram.createdAt);
-                setDiagramUpdatedAt(diagram.updatedAt);
-                setHighlightedCustomTypeId(undefined);
-                setNotes(diagram.notes ?? []);
+    // Remote collaboration applies use preserveHistory so that receiving a
+    // peer's change never discards this user's local undo/redo stack.
+    const applyDiagramState = useCallback(
+        (diagram: Diagram, preserveHistory: boolean) => {
+            setDiagramId(diagram.id);
+            setDiagramName(diagram.name);
+            setDatabaseType(diagram.databaseType);
+            setDatabaseEdition(diagram.databaseEdition);
+            setTables(diagram.tables ?? []);
+            setRelationships(diagram.relationships ?? []);
+            setDependencies(diagram.dependencies ?? []);
+            setAreas(diagram.areas ?? []);
+            setCustomTypes(diagram.customTypes ?? []);
+            setDiagramCreatedAt(diagram.createdAt);
+            setDiagramUpdatedAt(diagram.updatedAt);
+            setHighlightedCustomTypeId(undefined);
+            setNotes(diagram.notes ?? []);
 
-                events.emit({ action: 'load_diagram', data: { diagram } });
+            events.emit({ action: 'load_diagram', data: { diagram } });
 
+            if (!preserveHistory) {
                 resetRedoStack();
                 resetUndoStack();
-            },
-            [
-                setDiagramId,
-                setDiagramName,
-                setDatabaseType,
-                setDatabaseEdition,
-                setTables,
-                setRelationships,
-                setDependencies,
-                setAreas,
-                setCustomTypes,
-                setDiagramCreatedAt,
-                setDiagramUpdatedAt,
-                setHighlightedCustomTypeId,
-                events,
-                setNotes,
-                resetRedoStack,
-                resetUndoStack,
-            ]
+            }
+        },
+        [
+            setDiagramId,
+            setDiagramName,
+            setDatabaseType,
+            setDatabaseEdition,
+            setTables,
+            setRelationships,
+            setDependencies,
+            setAreas,
+            setCustomTypes,
+            setDiagramCreatedAt,
+            setDiagramUpdatedAt,
+            setHighlightedCustomTypeId,
+            events,
+            setNotes,
+            resetRedoStack,
+            resetUndoStack,
+        ]
+    );
+
+    const loadDiagramFromData: ChartDBContext['loadDiagramFromData'] =
+        useCallback(
+            (diagram) => applyDiagramState(diagram, false),
+            [applyDiagramState]
         );
 
     const updateDiagramData: ChartDBContext['updateDiagramData'] = useCallback(
@@ -1928,9 +1937,9 @@ export const ChartDBProvider: React.FC<
             const st = options?.forceUpdateStorage ? storageDB : db;
             await st.deleteDiagram(diagram.id);
             await st.addDiagram({ diagram });
-            loadDiagramFromData(diagram);
+            applyDiagramState(diagram, options?.preserveHistory ?? false);
         },
-        [db, storageDB, loadDiagramFromData]
+        [db, storageDB, applyDiagramState]
     );
 
     const loadDiagram: ChartDBContext['loadDiagram'] = useCallback(

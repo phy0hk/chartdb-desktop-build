@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 )
 
 const (
@@ -14,12 +15,13 @@ const (
 )
 
 type operationDecision struct {
-	Accepted  bool
-	Duplicate bool
-	Revision  uint64
-	Code      string
-	Message   string
-	Operation collaborationMessage
+	Accepted   bool
+	Duplicate  bool
+	Revision   uint64
+	Code       string
+	Message    string
+	LastWriter string
+	Operation  collaborationMessage
 }
 
 type operationKey struct {
@@ -30,6 +32,7 @@ type operationKey struct {
 type collaborationSequencer struct {
 	revision      uint64
 	entityVersion map[string]uint64
+	entityWriter  map[string]string
 	seen          map[operationKey]collaborationMessage
 	operationLog  []collaborationMessage
 }
@@ -37,6 +40,7 @@ type collaborationSequencer struct {
 func newCollaborationSequencer() *collaborationSequencer {
 	return &collaborationSequencer{
 		entityVersion: make(map[string]uint64),
+		entityWriter:  make(map[string]string),
 		seen:          make(map[operationKey]collaborationMessage),
 		operationLog:  make([]collaborationMessage, 0),
 	}
@@ -53,6 +57,7 @@ func newCollaborationSequencerFromSnapshot(snapshot json.RawMessage) (*collabora
 	sequencer := newCollaborationSequencer()
 	for entityID := range entities {
 		sequencer.entityVersion[entityID] = 0
+		sequencer.entityWriter[entityID] = "host"
 	}
 	return sequencer, nil
 }
@@ -126,14 +131,27 @@ func (s *collaborationSequencer) accept(operation collaborationMessage) operatio
 	if len(s.entityVersion)+newEntities > maxTrackedEntities {
 		return operationDecision{Revision: s.revision, Code: "session_capacity", Message: "session entity version capacity is full", Operation: operation}
 	}
+	// Pick the conflicting entity deterministically so the reject message and
+	// last-writer attribution are stable across runs.
+	conflicting := make([]string, 0)
 	for entityID, expectedVersion := range operation.EntityVersions {
 		if currentVersion := s.entityVersion[entityID]; expectedVersion != currentVersion {
-			return operationDecision{
-				Revision:  s.revision,
-				Code:      "conflict",
-				Message:   fmt.Sprintf("entity %q changed since this operation was prepared", entityID),
-				Operation: operation,
-			}
+			conflicting = append(conflicting, entityID)
+		}
+	}
+	if len(conflicting) > 0 {
+		sort.Strings(conflicting)
+		entityID := conflicting[0]
+		lastWriter := s.entityWriter[entityID]
+		if lastWriter == "" {
+			lastWriter = "host"
+		}
+		return operationDecision{
+			Revision:   s.revision,
+			Code:       "conflict",
+			Message:    fmt.Sprintf("entity %q changed since this operation was prepared (last writer: %s)", entityID, lastWriter),
+			LastWriter: lastWriter,
+			Operation:  operation,
 		}
 	}
 
@@ -141,6 +159,7 @@ func (s *collaborationSequencer) accept(operation collaborationMessage) operatio
 	operation.Revision = s.revision
 	for entityID, version := range operation.EntityVersions {
 		s.entityVersion[entityID] = version + 1
+		s.entityWriter[entityID] = operation.ClientID
 	}
 	s.seen[key] = operation
 	s.operationLog = append(s.operationLog, operation)
@@ -191,6 +210,7 @@ func (d operationDecision) rejection() collaborationMessage {
 		Revision:        d.Revision,
 		Code:            d.Code,
 		Message:         d.Message,
+		LastWriter:      d.LastWriter,
 	}
 }
 

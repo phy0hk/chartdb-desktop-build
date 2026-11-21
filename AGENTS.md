@@ -15,16 +15,22 @@ Keep `.ai_context/MANIFEST.md` current: record the diagnosis before editing, mar
 ## Project context
 
 - The application is built with Wails, Go, and a frontend under `frontend/`.
-- LAN collaboration is hosted by the Go backend and exposed through the Wails desktop runtime.
+- LAN collaboration is hosted by the Go backend and exposed through the Wails desktop runtime, or through a standalone Go service for browser mode when `VITE_COLLABORATION_URL` is set.
 - Collaboration is local-network, unencrypted, and does not use a ChartDB account or cloud service.
 - The host is authoritative for operation ordering and conflict detection. This is not CRDT or conflict-free editing.
-- Normal web-app usage must remain unchanged unless the requirements explicitly change.
+- Normal web-app usage with no collaboration URL must remain unchanged; browser collaboration is opt-in via `VITE_COLLABORATION_URL`.
 
 ## Graphify
 
-Treat `graphify-out/` as a navigation cache, not as a substitute for source code or tests. Use scoped Graphify queries when the cache is available and useful, then inspect the relevant source directly before editing or validating.
+Treat `graphify-out/` as a navigation cache, not as a substitute for source code or tests. For repository-analysis tasks, use this order:
 
-If code files are modified and the Graphify CLI is available, run `graphify update .` to refresh the cache. Do not treat Graphify output as proof that the application is correct.
+1. Check freshness by comparing the report's built commit with `git rev-parse HEAD`; if the working tree has code changes or the cache is stale, run `graphify update .` when the CLI is available.
+2. Start with a scoped `graphify query`, `graphify explain`, or `graphify path` query to identify relevant files and relationships; use `GRAPH_REPORT.md` only for broad orientation.
+3. Inspect the identified source files and tests directly before editing or validating. Record the useful query/result and any graph limitation in `.ai_context/MANIFEST.md` when the task uses Graphify.
+
+For cross-language flows, do not infer a missing relationship from a missing graph edge. Query each language boundary separately, then verify the handoff in source and tests. If Graphify is unavailable, stale, or insufficient, continue with targeted source inspection and note that fallback. Never treat Graphify output as proof that the application is correct.
+
+If code files are modified and the Graphify CLI is available, run `graphify update .` after the edits and record the refresh in the manifest.
 
 ## Implementation and validation
 
@@ -32,7 +38,7 @@ If code files are modified and the Graphify CLI is available, run `graphify upda
 - Preserve existing project conventions and avoid unrelated cleanup.
 - Use tests for behavior changes and run the narrowest relevant checks first.
 - Prefer focused Go tests, frontend typechecks, lint, or targeted tests over a full build when they provide sufficient validation.
-- Do not compile or package unless the task requires a build artifact or build-specific validation; builds can consume substantial CPU and memory.
+- Do not run `wails build` or production packaging unless the task requires a build artifact. `go run`, `go test`, the Vite dev server, and headless browser test runners are explicitly allowed for development and verification.
 - Do not claim performance improvements without repeatable before/after measurements.
 - Report manual validation as blocked when a Wails desktop runtime or second LAN client is unavailable.
 

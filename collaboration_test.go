@@ -2,8 +2,29 @@ package main
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 )
+
+func TestStartCollaborationUsesLoopbackForHostAndAdvertisesExternalURLs(t *testing.T) {
+	session, err := startCollaboration()
+	if err != nil {
+		t.Fatalf("start collaboration: %v", err)
+	}
+	defer session.stop()
+
+	if !strings.HasPrefix(session.URL, "ws://127.0.0.1:") {
+		t.Fatalf("host URL = %q, want loopback URL", session.URL)
+	}
+	if len(session.URLs) == 0 {
+		t.Fatal("expected at least one external invite URL")
+	}
+	for _, url := range session.URLs {
+		if strings.Contains(url, "127.0.0.1") || strings.Contains(url, "localhost") {
+			t.Fatalf("invite URL %q must be usable by another device", url)
+		}
+	}
+}
 
 func TestBroadcastQueuesMessagesWithoutWritingUnderHubLock(t *testing.T) {
 	sender := &collaborationPeer{outbound: make(chan []byte, 1), done: make(chan struct{})}

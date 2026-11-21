@@ -15,6 +15,11 @@ import (
 var assets embed.FS
 
 func main() {
+	if os.Getenv("CHARTDB_COLLABORATION_SERVER") == "1" {
+		runCollaborationServer()
+		return
+	}
+
 	// Create an int pstance of the app structure
 	app := NewApp()
 

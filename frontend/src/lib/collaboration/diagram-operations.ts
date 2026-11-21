@@ -71,8 +71,15 @@ const operationChangeSchema = z.discriminatedUnion('kind', [
         })
         .strict(),
 ]);
+export const maxDiagramOperationChanges = 1024;
+
 const operationPayloadSchema = z
-    .object({ changes: z.array(operationChangeSchema).min(1).max(64) })
+    .object({
+        changes: z
+            .array(operationChangeSchema)
+            .min(1)
+            .max(maxDiagramOperationChanges),
+    })
     .strict();
 
 const collections: DiagramCollection[] = [
@@ -87,7 +94,8 @@ const collections: DiagramCollection[] = [
 export function buildDiagramOperation(
     previous: Diagram,
     current: Diagram,
-    versions: ReadonlyMap<string, number>
+    versions: ReadonlyMap<string, number>,
+    maxChanges = maxDiagramOperationChanges
 ): {
     payload: DiagramOperationPayload;
     entityVersions: Record<string, number>;
@@ -96,6 +104,10 @@ export function buildDiagramOperation(
         throw new Error(
             'A collaboration session cannot change diagram identity'
         );
+    }
+
+    if (!Number.isInteger(maxChanges) || maxChanges < 1) {
+        throw new Error('The collaboration operation size must be positive');
     }
 
     const changes: DiagramEntityChange[] = [];
@@ -133,7 +145,7 @@ export function buildDiagramOperation(
     if (
         previous.name !== current.name ||
         previous.databaseType !== current.databaseType ||
-        previous.databaseEdition !== current.databaseEdition
+        current.databaseEdition !== previous.databaseEdition
     ) {
         changes.push({
             kind: 'metadata',
@@ -148,6 +160,11 @@ export function buildDiagramOperation(
     }
 
     if (changes.length === 0) return null;
+    if (changes.length > maxChanges) {
+        throw new Error(
+            `Diagram change affects ${changes.length} entities, above the ${maxChanges}-entity operation limit. Narrow the change and retry.`
+        );
+    }
     return { payload: { changes }, entityVersions };
 }
 

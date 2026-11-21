@@ -14,6 +14,39 @@ server that will provide very fast hot reload of your frontend changes. If you w
 and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
 to this in your browser, and you can call your Go code from devtools.
 
+### Browser collaboration
+
+The browser can join a session directly with the **Join** toolbar action; it does not need Wails bindings or a desktop build. Browser hosting requires a Go collaboration service that is already listening on a WebSocket URL, because browsers cannot bind an inbound LAN listener. Configure that URL before starting Vite:
+
+```bash
+# Terminal 1, from the repository root:
+CHARTDB_COLLABORATION_SERVER=1 go run .
+
+# Terminal 2, from frontend/; copy the printed invite URL:
+VITE_COLLABORATION_URL=ws://192.168.1.20:43365/collaborate/<session-token> npm run dev
+```
+
+The Wails runtime still starts its own service automatically when available. Keep the session token in the URL, and use collaboration only on a trusted LAN; the service is unencrypted. When the host leaves, the session ends for every participant; start a new service/session to collaborate again.
+
+### Collaboration verification
+
+The focused development checks do not require a desktop build:
+
+```bash
+# Repository root: Go protocol/session tests
+go test -race ./...
+
+# frontend/: unit tests, typecheck, lint
+npx vitest run src/lib/collaboration/__tests__ --reporter=dot
+npx tsc -b --pretty false
+npm run lint
+
+# frontend/: three isolated Firefox clients against a supervised Go service + Vite
+npx playwright test e2e/collaboration.spec.ts
+```
+
+The Playwright command starts `e2e/dev-servers.mjs`, which runs `CHARTDB_COLLABORATION_SERVER=1 go run .` and the Vite dev server with a generated `VITE_COLLABORATION_URL`. The spec exercises join/presence, live edits, cursors and selection, host rejection/rollback, reconnect/resync, and host-stop session ending.
+
 ## Building
 
 > **Resource warning:** Do not compile or package unless you need the generated frontend or desktop artifact. Builds can use substantial CPU and memory and may freeze the operating system. Prefer `wails dev` or the Vite dev server for normal development.

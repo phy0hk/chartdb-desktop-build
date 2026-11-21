@@ -1,80 +1,80 @@
-# Graph Report - chartdb-desktop-build  (2026-11-03)
+# Graph Report - chartdb-desktop-build  (2026-11-22)
 
 ## Corpus Check
-- 622 files · ~684,462 words
+- 652 files · ~713,047 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 25 file(s) not represented in the graph (top: .dbml 11, (none) 7, .css 2)
 
 ## Summary
-- 3566 nodes · 10587 edges · 231 communities (148 shown, 83 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 85 edges (avg confidence: 0.85)
+- 4049 nodes · 11154 edges · 256 communities (178 shown, 78 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 107 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3cb0604f`
+- Built from commit: `009843ec`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- diff.ts
+- app.tsx
 - cn
-- canvas.tsx
+- useLayout
 - generateId
-- react
-- Button
+- diff-check.ts
+- DatabaseType
 - templates-data.ts
-- useChartDB
+- editor-page.tsx
 - vitest
-- diagram.ts
-- export-sql-script.ts
+- db-table.ts
+- Diagram
 - dependencies
 - to-mysql.ts
-- DBTable
+- eslint.config.mjs
 - data-types.ts
-- DatabaseEdition
-- react-i18next
+- scripts.ts
+- Input
 - dbml-export.ts
 - database-type.ts
-- diff-check.ts
+- useDialog
 - canvas-filter.tsx
-- import-database.tsx
+- TooltipContent
 - devDependencies
 - sqlserver.ts
-- frontend/package.json
-- side-panel.tsx
+- select-database-content.tsx
+- custom-type-list-item-content.tsx
 - redo-undo-action.ts
 - mysql/mysql.ts
-- create-diagram-dialog.tsx
+- export-sql-dialog.tsx
 - with
 - use-toast.ts
 - sql-import/common.ts
 - postgresql-dump.ts
 - with
 - databases.ts
-- Spinner
+- examples-page.tsx
 - sqlite/sqlite.ts
 - oracle.ts
 - collaborationHub
 - i18n.ts
-- eslint.config.mjs
-- canvas-provider.tsx
-- react-router-dom
+- dev-servers.mjs
+- dbml-parse.d.ts
+- useTheme
 - collaborationMessage
 - accordion.tsx
-- select-database-content.tsx
+- template-page.tsx
 - sql-validator.ts
 - compilerOptions
-- collaboration.go
-- DatabaseType
+- .serve
+- sql-import/index.ts
 - mr.ts
-- db-table.ts
-- useTheme
-- template-page.tsx
-- select-box.tsx
+- 2026-11-04 — Make collaboration host connection platform-safe
+- frontend
+- last-saved.tsx
+- DatabaseEdition
 - main.go
-- instructions-section.tsx
+- react
 - menu.tsx
-- keyboard-shortcuts-provider.tsx
+- 2026-11-03 — Graphify code-reading skill mapping
 - te.ts
 - tr.ts
 - apply-dbml.ts
@@ -85,17 +85,17 @@
 - steps
 - components.json
 - diagram-operations.ts
-- useStorage
+- frontend
 - pt_BR.ts
 - runtime/package.json
 - base-alert-dialog.tsx
 - de.ts
 - es.ts
 - 7.json
-- testing.T
+- collaboration_operations.go
 - frontend/README.md
-- editor-page.tsx
-- history-provider.tsx
+- create-diagram-dialog.tsx
+- Code Review and Quality
 - 4.json
 - 5.json
 - steps
@@ -104,7 +104,7 @@
 - scripts
 - ne.ts
 - zh_CN.ts
-- sql-import/index.ts
+- canvas.tsx
 - 6.json
 - bn.ts
 - gu.ts
@@ -112,7 +112,7 @@
 - vi.ts
 - zh_TW.ts
 - 8.json
-- Planned design/implementation work (ordered; planning items must finish before coding)
+- Active Manifest & Liveness Checklist
 - vite.config.ts
 - ko_KR.ts
 - uk.ts
@@ -123,20 +123,20 @@
 - compilerOptions
 - wails.json
 - Universal Context Optimization & Liveness Protocol
-- diagram-filter-provider.tsx
-- theme-provider.tsx
+- Test-Driven Development
+- diagram-operations.ts
 - ar.ts
-- Toolbar
-- dbml-parse.d.ts
+- examples-data.ts
+- table-dbml.tsx
 - runtime.d.ts
 - ChartDB Desktop Collaboration Requirements
 - decodeCollaborationMessage
-- import-metadata/utils.ts
-- AI Developer & Technical Writer Rules — Budget Request System
+- airbnb-db.ts
+- ChartDB Desktop Development Rules
 - Memo — 2026-11-03 00:01
 - Memo — Collaboration cursor and live updates
 - Memo — Restore collaboration cursor and synchronization
-- layout-context.tsx
+- smart-query-instructions.tsx
 - types.d.ts
 - models.ts
 - Project Guardrails
@@ -149,56 +149,56 @@
 - 2026-11-03 — Collaborator cursors and participant identity
 - 2026-11-03 — Diagram operation diff and reducer
 - 2026-11-03 — Frontend operation validation and version seeding
-- 2026-11-03 — Frontend typed collaboration protocol client
+- API and Interface Design
 - 2026-11-03 — Restore collaboration cursor and synchronization
 - 2026-11-03 — Server-side diagram operation validation
 - 2026-11-03 — Typed WebSocket session and sequencer integration
 - 2026-11-03 — Versioned collaboration message schema
-- .broadcast
-- setup.ts
-- .prettierrc.json
-- adonis-acl-db.ts
 - akaunting-db.ts
-- attendize-db.ts
+- database-edition.ts
+- .prettierrc.json
+- ddl-instructions.tsx
+- Frontend UI Engineering
+- Incremental Implementation
+- bookstack-db.ts
+- Template
+- cachet-db.ts
+- cabot-db.ts
+- Code Simplification
+- django-db.ts
+- Debugging and Error Recovery
+- tasks
+- doorkeeper-db.ts
+- flipper-db.ts
+- canvas-db.ts
+- 2026-11-04 — Make Graphify analysis workflow explicit
+- open-diagram-dialog.tsx
+- laravel-db.ts
+- 2026-11-04 — Seed host operation versions before handshake
+- Spec-Driven Development
+- testing.T
+- empty-state.tsx
+- KeyboardShortcutAction
+- feedbin-db.ts
+- instructions-section.tsx
+- Planning and Task Breakdown
+- app.js
+- useBreakpoint
+- toolbar.tsx
+- flarum-db.ts
+- ssms-info.tsx
+- freescout-db.ts
+- Implementation Plan: Desktop Performance and Collaboration Follow-ups
+- 2026-11-21 — Restore LAN collaboration end to end
 - bouncer-db.ts
 - buddypress-db.ts
-- cachet-db.ts
-- comfortable-mexican-sofa-db.ts
-- deployer-db.ts
-- devise-db.ts
-- django-axes-db.ts
-- django-db.ts
-- doorkeeper-db.ts
-- employee-db.ts
-- feedbin-db.ts
-- flipper-db.ts
-- freescout-db.ts
-- hacker-news-db.ts
-- koel-db.ts
-- laravel-activitylog-db.ts
-- laravel-db.ts
-- laravel-permission-db.ts
-- laravel-spark-db.ts
-- lobsters-db.ts
-- monica-db.ts
-- octobox-db.ts
-- pay-rails-db.ts
-- pixelfed-db.ts
-- polr-db.ts
-- saas-pegasus-db.ts
-- snipe-it-db.ts
-- staytus-db.ts
-- sylius-db.ts
-- talk-db.ts
-- twitter-db.ts
-- wordpress-db.ts
-- alert-context.tsx
-- CreateDiagramDialogStep
+- collaboration-client.test.ts
+- select-tables.tsx
 - README
 - Ponytail: Lazy Senior Dev Mode
 - ChartDB Contributors License Agreement
 - tailwindcss
-- getIsOldSafari
+- laravel-spark-db.ts
 - 1.0.0 (2024-11-04)
 - [1.10.0](https://github.com/chartdb/chartdb/compare/v1.9.0...v1.10.0) (2025-03-25)
 - [1.11.0](https://github.com/chartdb/chartdb/compare/v1.10.0...v1.11.0) (2025-04-17)
@@ -227,25 +227,49 @@
 - Project Chronicle
 - [1.13.2](https://github.com/chartdb/chartdb/compare/v1.13.1...v1.13.2) (2025-07-06)
 - entrypoint.sh
-- dexie
-- i18next-browser-languagedetector
-- motion@^12.23.6
-- nanoid
-- @radix-ui/react-dropdown-menu
-- @radix-ui/react-hover-card
-- @radix-ui/react-toggle-group
-- react-hotkeys-hook
-- tailwind-merge
-- @uidotdev/usehooks@^2.4.1
+- pay-rails-db.ts
+- refinerycms-db.ts
+- django-axes-db.ts
+- pokemon-db.ts
+- hacker-news-db.ts
+- koel-db.ts
+- laravel-activitylog-db.ts
+- laravel-permission-db.ts
+- lobsters-db.ts
+- saas-pegasus-db.ts
 - window.d.ts
 - chartdb-desktop
+- apply-ids.ts
+- 2026-11-03 — Readable collaboration send-error toast
+- 2026-11-04 — Build resource rule and platform instructions
+- sylius-db.ts
+- ticketit-db.ts
+- 2026-11-03 — Collaboration host fallback and operation validation
+- 2026-11-04 — Commit hygiene rule
+- 2026-11-04 — Explicit commit authorization
+- 2026-11-04 — Project guidance cleanup
+- talk-db.ts
+- twitter-db.ts
+- visual-novel-db.ts
+- wordpress-db.ts
+- import-metadata/utils.ts
+- 2026-11-04 — Browser collaboration service mode and bounded operations
+- import-diagram-dialog.tsx
+- app.d.ts
+- comfortable-mexican-sofa-db.ts
+- employee-db.ts
+- octobox-db.ts
+- polr-db.ts
+- reversion-db.ts
+- screeenly-db.ts
+- snipe-it-db.ts
 
 ## God Nodes (most connected - your core abstractions)
 1. `cn()` - 279 edges
 2. `react` - 226 edges
 3. `DatabaseType` - 172 edges
 4. `useChartDB()` - 125 edges
-5. `vitest` - 113 edges
+5. `vitest` - 115 edges
 6. `Button` - 109 edges
 7. `DBTable` - 78 edges
 8. `Diagram` - 78 edges
@@ -253,16 +277,16 @@
 10. `fromPostgres()` - 69 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Verified current-state findings` --references--> `CollaborationClient`  [INFERRED]
-  .ai_context/MANIFEST.md → frontend/src/lib/collaboration/collaboration-client.ts
+- `Task 13: Diagnose guest diagram-identity rejection` --references--> `buildDiagramOperation()`  [INFERRED]
+  tasks/todo.md → frontend/src/lib/collaboration/diagram-operations.ts
 - `Creating a Branch` --references--> `main()`  [INFERRED]
   frontend/CONTRIBUTING.md → main.go
 - `Submitting Pull Requests` --references--> `main()`  [INFERRED]
   frontend/CONTRIBUTING.md → main.go
-- `encodeCollaborationMessage()` --calls--> `validateCollaborationMessage()`  [INFERRED]
-  collaboration_operations.go → collaboration_protocol.go
-- `BreadcrumbPage` --calls--> `cn()`  [EXTRACTED]
-  frontend/src/components/breadcrumb/breadcrumb.tsx → frontend/src/lib/utils/utils.ts
+- `runCollaborationServer()` --calls--> `startCollaboration()`  [INFERRED]
+  collaboration_server.go → collaboration.go
+- `TestIntegrationVirtualAdaptersAreNotPrimaryInvites()` --calls--> `isVirtualNetworkInterface()`  [INFERRED]
+  collaboration_integration_test.go → collaboration.go
 
 ## Import Cycles
 - 2-file cycle: `frontend/src/pages/editor-page/canvas/table-node/table-node-dependency-indicator.tsx -> frontend/src/pages/editor-page/canvas/table-node/table-node-field.tsx -> frontend/src/pages/editor-page/canvas/table-node/table-node-dependency-indicator.tsx`
@@ -270,111 +294,111 @@
 - 3-file cycle: `frontend/src/lib/domain/db-table.ts -> frontend/src/lib/utils/index.ts -> frontend/src/lib/utils/area-utils.ts -> frontend/src/lib/domain/db-table.ts`
 - 4-file cycle: `frontend/src/lib/domain/db-index.ts -> frontend/src/lib/utils/index.ts -> frontend/src/lib/utils/area-utils.ts -> frontend/src/lib/domain/db-table.ts -> frontend/src/lib/domain/db-index.ts`
 
-## Communities (231 total, 83 thin omitted)
+## Communities (256 total, 78 thin omitted)
 
-### Community 0 - "diff.ts"
-Cohesion: 0.03
-Nodes (80): DataType, dataTypeSchema, IndexType, IndexTypeConfig, AreaDiff, AreaDiffAdded, AreaDiffAttribute, areaDiffAttributeSchema (+72 more)
+### Community 0 - "app.tsx"
+Cohesion: 0.19
+Nodes (7): react-dom@^18.3.1, react-helmet-async@^2.0.5, App(), HelmetData(), router, react-dom, react-helmet-async
 
 ### Community 1 - "cn"
-Cohesion: 0.05
-Nodes (80): Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, DialogContent, DialogDescription (+72 more)
-
-### Community 2 - "canvas.tsx"
 Cohesion: 0.06
-Nodes (65): ContextMenuContent, ContextMenuItem, ContextMenuSeparator, useDiff(), BreakpointKey, breakpoints, useBreakpoint(), useCanvas() (+57 more)
+Nodes (71): DialogContent, DialogDescription, DialogFooter(), DialogHeader(), DialogOverlay, DialogTitle, Drawer(), DrawerContent (+63 more)
+
+### Community 2 - "useLayout"
+Cohesion: 0.09
+Nodes (45): Input, ScrollArea, ScrollBar, TabsContent, TabsList, TabsTrigger, KeyboardShortcutsContext, keyboardShortcutsContext (+37 more)
 
 ### Community 3 - "generateId"
 Cohesion: 0.06
-Nodes (64): cloneDiagram(), cloneTable(), generateIdsMapFromDiagram(), generateIdsMapFromTable(), colorOptions, defaultAreaColor, defaultTableColor, materializedViewColor (+56 more)
+Nodes (65): cloneDiagram(), cloneTable(), generateIdsMapFromDiagram(), generateIdsMapFromTable(), colorOptions, defaultAreaColor, defaultTableColor, materializedViewColor (+57 more)
 
-### Community 4 - "react"
-Cohesion: 0.09
-Nodes (42): Checkbox, ColorPickerProps, DiagramIcon, HoverCardContent, Label, labelVariants, PopoverContent, Separator (+34 more)
+### Community 4 - "diff-check.ts"
+Cohesion: 0.03
+Nodes (96): dataTypeSchema, AreaDiff, AreaDiffAdded, AreaDiffAttribute, areaDiffAttributeSchema, AreaDiffChanged, AreaDiffChangedSchema, AreaDiffRemoved (+88 more)
 
-### Community 5 - "Button"
-Cohesion: 0.11
-Nodes (52): Alert, AlertDescription, AlertTitle, alertVariants, Button, ButtonProps, DialogContent, DialogDescription (+44 more)
+### Community 5 - "DatabaseType"
+Cohesion: 0.08
+Nodes (40): expectFieldsMatch(), expectRelationshipsMatch(), expectTablesMatch(), FieldMapEntry, testDBMLImportCase(), DatabaseType, CLICKHOUSE, COCKROACHDB (+32 more)
 
 ### Community 6 - "templates-data.ts"
-Cohesion: 0.04
-Nodes (34): removeDups(), TemplatePageLoaderData, TemplateCardProps, TemplatesPageLoaderData, routes, getTemplatesAndAllTags(), airbnbDb, now (+26 more)
+Cohesion: 0.05
+Nodes (19): adonisAclDb, now, templates, deployerDb, now, deviseDb, now, gravityDb (+11 more)
 
-### Community 7 - "useChartDB"
-Cohesion: 0.10
-Nodes (45): Empty(), EmptyContent(), EmptyDescription(), EmptyHeader(), EmptyMedia(), emptyMediaVariants, EmptyTitle(), EmptyState (+37 more)
+### Community 7 - "editor-page.tsx"
+Cohesion: 0.12
+Nodes (24): AlertProvider(), ChartDBProvider(), ConfigProvider(), DiffProvider(), ExportImageProvider(), FullScreenLoaderContext, fullScreenLoaderContext, FullScreenLoaderProvider() (+16 more)
 
 ### Community 9 - "vitest"
-Cohesion: 0.09
-Nodes (18): findTableWithSchemaSupport(), getTableIdWithSchemaSupport(), extractCheckConstraintsFromCreateTable(), extractColumnsFromSQL(), extractColumnsFromView(), extractEnumFromSQL(), extractForeignKeysFromCreateTable(), fromPostgres() (+10 more)
+Cohesion: 0.08
+Nodes (19): convertToChartDBDiagram(), findTableWithSchemaSupport(), getTableIdWithSchemaSupport(), extractCheckConstraintsFromCreateTable(), extractColumnsFromSQL(), extractColumnsFromView(), extractEnumFromSQL(), extractForeignKeysFromCreateTable() (+11 more)
 
-### Community 10 - "diagram.ts"
-Cohesion: 0.09
-Nodes (45): AddFieldEvent, ChartDBContext, chartDBContext, ChartDBEvent, ChartDBEventBase, ChartDBEventType, CreateTableEvent, LoadDiagramEvent (+37 more)
-
-### Community 11 - "export-sql-script.ts"
+### Community 10 - "db-table.ts"
 Cohesion: 0.11
-Nodes (41): escapeSQLComment(), exportFieldComment(), formatMSSQLTableComment(), formatTableComment(), isFunction(), isKeyword(), strHasQuotes(), exportMSSQL() (+33 more)
+Nodes (44): AddFieldEvent, ChartDBContext, chartDBContext, ChartDBEvent, ChartDBEventBase, ChartDBEventType, CreateTableEvent, LoadDiagramEvent (+36 more)
+
+### Community 11 - "Diagram"
+Cohesion: 0.10
+Nodes (43): escapeSQLComment(), exportFieldComment(), formatMSSQLTableComment(), formatTableComment(), isFunction(), isKeyword(), strHasQuotes(), exportMSSQL() (+35 more)
 
 ### Community 12 - "dependencies"
-Cohesion: 0.04
-Nodes (52): dependencies, class-variance-authority@^0.7.1, clsx@^2.1.1, cmdk@^1.0.0, @dbml/core@^3.14.1, @dbml/parse@^5.3.0, @dnd-kit/sortable@^8.0.0, lucide-react@^0.525.0 (+44 more)
+Cohesion: 0.03
+Nodes (104): dependencies, ahooks@^3.8.1, ai@^5.0.101, @ai-sdk/openai@^2.0.72, class-variance-authority@^0.7.1, clsx@^2.1.1, cmdk@^1.0.0, @dbml/core@^3.14.1 (+96 more)
 
 ### Community 13 - "to-mysql.ts"
 Cohesion: 0.11
 Nodes (41): escapeSQLComment(), exportFieldComment(), formatMSSQLTableComment(), formatTableComment(), isFunction(), isKeyword(), strHasQuotes(), CROSS_DIALECT_SUPPORT (+33 more)
 
-### Community 14 - "DBTable"
-Cohesion: 0.08
-Nodes (35): DiagramRowActionsMenuProps, expectFieldsMatch(), expectRelationshipsMatch(), expectTablesMatch(), FieldMapEntry, testDBMLImportCase(), DBField, canFieldsUseGinIndex() (+27 more)
+### Community 14 - "eslint.config.mjs"
+Cohesion: 0.09
+Nodes (21): compat, __dirname, __filename, @eslint/compat@^1.2.4, @eslint/eslintrc@^3.2.0, @eslint/js@^9.16.0, eslint-plugin-css-modules@^2.12.0, eslint-plugin-jsx-a11y@^6.9.0 (+13 more)
 
 ### Community 15 - "data-types.ts"
-Cohesion: 0.08
-Nodes (34): DebouncedFunction, useDebounce(), generateFieldRegexPatterns(), useUpdateTableField(), useUpdateTable(), clickhouseDataTypes, ARRAY_INCOMPATIBLE_TYPES, autoIncrementAlwaysOn() (+26 more)
+Cohesion: 0.12
+Nodes (18): clickhouseDataTypes, ARRAY_INCOMPATIBLE_TYPES, compatibleTypes, DataTypeData, dataTypeMap, FieldAttributeRange, FieldAttributes, getPreferredSynonym() (+10 more)
 
-### Community 16 - "DatabaseEdition"
-Cohesion: 0.08
-Nodes (29): DiagramIconProps, InstructionsSectionProps, SmartQueryInstructionsProps, clickhouseQuery, cockroachdbQuery, mariaDBQuery, getMySQLQuery(), oracleDBQuery (+21 more)
+### Community 16 - "scripts.ts"
+Cohesion: 0.19
+Nodes (8): clickhouseQuery, cockroachdbQuery, mariaDBQuery, getMySQLQuery(), oracleDBQuery, ImportMetadataScripts, importMetadataScripts, getSqlServerQuery()
 
-### Community 17 - "react-i18next"
-Cohesion: 0.18
-Nodes (28): Badge(), BadgeProps, badgeVariants, buttonVariants, ButtonAlternative, ButtonWithAlternatives, ButtonWithAlternativesProps, ColorPicker (+20 more)
+### Community 17 - "Input"
+Cohesion: 0.16
+Nodes (31): ButtonAlternative, ButtonWithAlternatives, ButtonWithAlternativesProps, ColorPicker, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator (+23 more)
 
 ### Community 18 - "dbml-export.ts"
-Cohesion: 0.08
-Nodes (35): CheckConstraintValidationResult, COMPARISON_OPERATORS, LOGICAL_OPERATORS, SQL_KEYWORDS, Token, tokenize(), TokenType, validateCheckConstraint() (+27 more)
+Cohesion: 0.09
+Nodes (33): CheckConstraintValidationResult, COMPARISON_OPERATORS, LOGICAL_OPERATORS, SQL_KEYWORDS, Token, tokenize(), TokenType, validateCheckConstraint() (+25 more)
 
 ### Community 19 - "database-type.ts"
 Cohesion: 0.11
-Nodes (28): findDataTypeDataById(), getPreferredSynonym(), DBMLEndpoint, DBMLEnum, DBMLField, DBMLIndex, DBMLIndexColumn, DBMLRef (+20 more)
+Nodes (28): findDataTypeDataById(), DBMLEndpoint, DBMLEnum, DBMLField, DBMLIndex, DBMLIndexColumn, DBMLRef, DBMLTable (+20 more)
 
-### Community 20 - "diff-check.ts"
-Cohesion: 0.11
-Nodes (31): DiffCalculatedData, DiffCalculatedEvent, DiffContext, diffContext, DiffEvent, DiffEventBase, DiffEventType, defaultIndexTypeForDatabase (+23 more)
+### Community 20 - "useDialog"
+Cohesion: 0.29
+Nodes (22): Button, DialogContent, DialogDescription, DialogFooter(), DialogHeader(), DialogInternalContent, DialogOverlay, DialogTitle (+14 more)
 
 ### Community 21 - "canvas-filter.tsx"
-Cohesion: 0.13
-Nodes (30): FetchChildrenFunction, SelectableTreeProps, TreeNode, findNodeById(), TreeNode(), TreeNodeProps, TreeView(), TreeViewProps (+22 more)
+Cohesion: 0.10
+Nodes (42): FetchChildrenFunction, SelectableTreeProps, TreeNode, findNodeById(), TreeNode(), TreeNodeProps, TreeView(), TreeViewProps (+34 more)
 
-### Community 22 - "import-database.tsx"
-Cohesion: 0.11
-Nodes (24): CodeSnippetAction, CodeSnippetProps, DiffEditor, Editor, EditorType, DBMLCompletionManager, registerDBMLCompletionProvider(), TRIGGER_CHARACTERS (+16 more)
+### Community 22 - "TooltipContent"
+Cohesion: 0.17
+Nodes (19): DiagramIcon, Label, labelVariants, TooltipContent, randomColor(), databaseSecondaryLogoMap, databaseTypeToLabelMap, databaseIndexTypes (+11 more)
 
 ### Community 23 - "devDependencies"
-Cohesion: 0.06
-Nodes (36): devDependencies, autoprefixer@^10.4.20, eslint@^9.16.0, eslint-config-prettier@^9.1.0, eslint-plugin-prettier@^5.2.1, eslint-plugin-react@^7.35.0, eslint-plugin-react-hooks@^5.1.0, happy-dom@^20.0.10 (+28 more)
+Cohesion: 0.05
+Nodes (40): devDependencies, autoprefixer@^10.4.20, eslint@^9.16.0, eslint-config-prettier@^9.1.0, eslint-plugin-prettier@^5.2.1, eslint-plugin-react@^7.35.0, eslint-plugin-react-hooks@^5.1.0, happy-dom@^20.0.10 (+32 more)
 
 ### Community 24 - "sqlserver.ts"
 Cohesion: 0.11
 Nodes (22): AlterTableExprItem, AlterTableStatement, ColumnDefinition, ColumnReference, ConstraintDefinition, CreateIndexStatement, CreateTableStatement, extractColumnName() (+14 more)
 
-### Community 25 - "frontend/package.json"
-Cohesion: 0.06
-Nodes (34): ai@^5.0.101, @ai-sdk/openai@^2.0.72, fast-deep-equal@^3.1.3, html-to-image@^1.11.11, i18next@^23.14.0, @radix-ui/react-accordion@^1.2.0, @radix-ui/react-avatar@^1.1.0, @radix-ui/react-label@^2.1.0 (+26 more)
+### Community 25 - "select-database-content.tsx"
+Cohesion: 0.21
+Nodes (10): ToggleGroupContext, ToggleGroupItem, toggleVariants, DatabaseOption(), DatabaseOptionProps, ANALYTICAL_DB_TYPES, SelectDatabaseContentProps, TRANSACTIONAL_DB_TYPES (+2 more)
 
-### Community 26 - "side-panel.tsx"
-Cohesion: 0.15
-Nodes (24): SelectContent, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, customTypeKindToLabel (+16 more)
+### Community 26 - "custom-type-list-item-content.tsx"
+Cohesion: 0.19
+Nodes (19): SelectContent, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, customTypeKindToLabel (+11 more)
 
 ### Community 27 - "redo-undo-action.ts"
 Cohesion: 0.06
@@ -382,11 +406,11 @@ Nodes (33): Action, RedoActionData, RedoUndoActionAddAreas, RedoUndoActionAddChe
 
 ### Community 28 - "mysql/mysql.ts"
 Cohesion: 0.10
-Nodes (27): buildSQLFromAST(), quoteIdentifier(), AlterTableConstraintDefinition, AlterTableExprItem, AlterTableStatement, ColumnDefinition, ColumnReference, ConstraintDefinition (+19 more)
+Nodes (27): SQLCheckConstraint, SQLTable, AlterTableConstraintDefinition, AlterTableExprItem, AlterTableStatement, ColumnDefinition, ColumnReference, ConstraintDefinition (+19 more)
 
-### Community 29 - "create-diagram-dialog.tsx"
-Cohesion: 0.16
-Nodes (25): DialogContext, dialogContext, BaseDialogProps, ImportDatabase(), MAX_TABLES_IN_DIAGRAM, MAX_TABLES_WITHOUT_SHOWING_FILTER, CreateDiagramDialog(), CreateDiagramDialogProps (+17 more)
+### Community 29 - "export-sql-dialog.tsx"
+Cohesion: 0.26
+Nodes (15): SelectBoxOption, DialogContext, dialogContext, BaseDialogProps, CreateDiagramDialogProps, CreateRelationshipDialogProps, ExportDiagramDialogProps, ExportImageDialogProps (+7 more)
 
 ### Community 30 - "with"
 Cohesion: 0.06
@@ -397,60 +421,60 @@ Cohesion: 0.13
 Nodes (25): Toast, ToastAction, ToastActionElement, ToastClose, ToastDescription, ToastProps, ToastTitle, toastVariants (+17 more)
 
 ### Community 32 - "sql-import/common.ts"
-Cohesion: 0.11
-Nodes (21): convertToChartDBDiagram(), mapSQLTypeToGenericType(), SQLASTArg, SQLASTNode, SQLBinaryExpr, SQLBooleanNode, SQLCastNode, SQLColumnRef (+13 more)
+Cohesion: 0.18
+Nodes (16): mapSQLTypeToGenericType(), SQLASTArg, SQLASTNode, SQLBinaryExpr, SQLBooleanNode, SQLCastNode, SQLColumnRef, SQLCustomType (+8 more)
 
 ### Community 33 - "postgresql-dump.ts"
-Cohesion: 0.12
-Nodes (26): SQLColumn, SQLIndex, SQLTable, AlterTableConstraintDefinition, AlterTableExprItem, AlterTableStatement, ColumnDefinition, ColumnReference (+18 more)
+Cohesion: 0.11
+Nodes (28): buildSQLFromAST(), quoteIdentifier(), SQLColumn, SQLForeignKey, SQLIndex, AlterTableConstraintDefinition, AlterTableExprItem, AlterTableStatement (+20 more)
 
 ### Community 34 - "with"
 Cohesion: 0.07
 Nodes (28): runs-on, steps, GITHUB_TOKEN, PERSONAL_ACCESS_TOKEN, types, jobs, CLAAssistant, name (+20 more)
 
-### Community 36 - "Spinner"
-Cohesion: 0.13
-Nodes (17): loaderVariants, Spinner(), SpinnerContentProps, spinnerVariants, LocalConfigProvider(), StorageProvider(), ThemeProvider(), CloneTemplateComponent() (+9 more)
+### Community 36 - "examples-page.tsx"
+Cohesion: 0.23
+Nodes (14): LocalConfigContext, ScrollAction, LocalConfigProvider(), StorageProvider(), ThemeContext, ThemeProvider(), EffectiveTheme, Theme (+6 more)
 
 ### Community 37 - "sqlite/sqlite.ts"
 Cohesion: 0.16
-Nodes (23): SQLCheckConstraint, addCheckConstraintsToTables(), addPlaceholderTablesForFKReferences(), AlterTableExprItem, AlterTableStatement, ColumnDefinition, ColumnReference, ConstraintDefinition (+15 more)
+Nodes (22): addCheckConstraintsToTables(), addPlaceholderTablesForFKReferences(), AlterTableExprItem, AlterTableStatement, ColumnDefinition, ColumnReference, ConstraintDefinition, CreateIndexStatement (+14 more)
 
 ### Community 38 - "oracle.ts"
 Cohesion: 0.15
 Nodes (20): AlterTableExprItem, AlterTableStatement, ColumnDefinition, ColumnReference, ConstraintDefinition, CreateIndexStatement, CreateTableStatement, extractColumnName() (+12 more)
 
 ### Community 39 - "collaborationHub"
-Cohesion: 0.25
-Nodes (5): collaborationHub, collaborationPeer, enqueueCollaborationMessage(), enqueueCollaborationMessageWait(), encodeCollaborationMessage()
+Cohesion: 0.24
+Nodes (6): collaborationHub, collaborationPeer, encodeTransientMessage(), enqueueCollaborationMessage(), enqueueCollaborationMessageWait(), encodeCollaborationMessage()
 
 ### Community 40 - "i18n.ts"
 Cohesion: 0.15
 Nodes (12): languages, resources, en, enMetadata, fr, frMetadata, hr, hrMetadata (+4 more)
 
-### Community 41 - "eslint.config.mjs"
-Cohesion: 0.08
-Nodes (21): compat, __dirname, __filename, @eslint/compat@^1.2.4, @eslint/eslintrc@^3.2.0, @eslint/js@^9.16.0, eslint-plugin-css-modules@^2.12.0, eslint-plugin-jsx-a11y@^6.9.0 (+13 more)
+### Community 41 - "dev-servers.mjs"
+Cohesion: 0.10
+Nodes (11): here, inviteUrl(), frontend, go, here, parseUrl(), root, startVite() (+3 more)
 
-### Community 42 - "canvas-provider.tsx"
-Cohesion: 0.17
-Nodes (19): ahooks@^3.8.1, CanvasContext, canvasContext, CanvasEvent, CanvasEventBase, CanvasEventType, PanClickEvent, CanvasProvider() (+11 more)
+### Community 42 - "dbml-parse.d.ts"
+Cohesion: 0.22
+Nodes (4): Compiler, @dbml/parse, DBMLCompletionItemProvider, services
 
-### Community 43 - "react-router-dom"
-Cohesion: 0.11
-Nodes (15): react-helmet-async@^2.0.5, App(), HelmetData(), APP_URL, DISABLE_ANALYTICS, HIDE_CHARTDB_CLOUD, HOST_URL, IS_CHARTDB_IO (+7 more)
+### Community 43 - "useTheme"
+Cohesion: 0.22
+Nodes (11): ListMenu, ExportImageContext, exportImageContext, ImageType, useTheme(), TopNavbarMock(), TopNavbarProps, TemplateCard() (+3 more)
 
 ### Community 44 - "collaborationMessage"
-Cohesion: 0.16
-Nodes (12): collaborationMessage, collaborationPosition, collaborationSequencer, diagramEntityChange, diagramOperationPayload, operationDecision, operationKey, entityIDsInSnapshot() (+4 more)
+Cohesion: 0.22
+Nodes (9): collaborationMessage, collaborationPosition, diagramEntityChange, diagramOperationPayload, operationDecision, sameOperation(), finitePosition(), validateCollaborationMessage() (+1 more)
 
 ### Community 45 - "accordion.tsx"
 Cohesion: 0.23
-Nodes (16): AccordionContent, AccordionItem, AccordionTrigger, CustomTypeListItem, CustomTypeListItemProps, DependencyListItemContent(), DependencyListItem, DependencyListItemProps (+8 more)
+Nodes (15): AccordionContent, AccordionItem, AccordionTrigger, CustomTypeListItem, CustomTypeListItemProps, DependencyListItemContent(), DependencyListItem, DependencyListItemProps (+7 more)
 
-### Community 46 - "select-database-content.tsx"
-Cohesion: 0.18
-Nodes (16): TabsContent, TabsList, TabsTrigger, ToggleGroup, ToggleGroupContext, ToggleGroupItem, toggleVariants, DatabaseOption() (+8 more)
+### Community 46 - "template-page.tsx"
+Cohesion: 0.11
+Nodes (23): Breadcrumb, BreadcrumbEllipsis(), BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator(), Link (+15 more)
 
 ### Community 47 - "sql-validator.ts"
 Cohesion: 0.21
@@ -460,45 +484,45 @@ Nodes (10): SQLValidationStatusProps, validateSQL(), validateMySQLDialect(), val
 Cohesion: 0.09
 Nodes (22): compilerOptions, allowImportingTsExtensions, baseUrl, composite, isolatedModules, jsx, lib, module (+14 more)
 
-### Community 49 - "collaboration.go"
-Cohesion: 0.14
-Nodes (5): CollaborationSession, hasProtocolVersion(), localIPv4Addresses(), startCollaboration(), uniqueStrings()
+### Community 49 - ".serve"
+Cohesion: 0.13
+Nodes (8): CollaborationSession, hasProtocolVersion(), dialCollaborationTestPeer(), TestTypedHubReplaysAcceptedOperationsAfterSnapshot(), TestTypedHubSequencesOperationsAndRejectsStaleVersions(), isVirtualNetworkInterface(), localIPv4Addresses(), uniqueStrings()
 
-### Community 50 - "DatabaseType"
-Cohesion: 0.10
-Nodes (15): SelectDatabaseProps, DatabaseType, CLICKHOUSE, COCKROACHDB, GENERIC, MARIADB, MYSQL, ORACLE (+7 more)
+### Community 50 - "sql-import/index.ts"
+Cohesion: 0.26
+Nodes (11): SQLParserResult, isMySQLFormat(), isOracleFormat(), detectDatabaseType(), isPgDumpFormat(), isSQLiteFormat(), isSQLServerFormat(), parseSQLError() (+3 more)
 
-### Community 52 - "db-table.ts"
-Cohesion: 0.17
-Nodes (18): dbCheckConstraintSchema, dbFieldSchema, dbIndexSchema, adjustTablePositions(), adjustTablePositionsWithoutAreas(), calcTableHeight(), dbTableSchema, getTableDimensions() (+10 more)
+### Community 52 - "2026-11-04 — Make collaboration host connection platform-safe"
+Cohesion: 0.33
+Nodes (6): 2026-11-04 — Make collaboration host connection platform-safe, Anti-Patterns Avoided, Files Modified, Task Summary & Timestamp, Technical Additions, Validation
 
-### Community 53 - "useTheme"
-Cohesion: 0.22
-Nodes (11): ListMenu, ExportImageContext, exportImageContext, ImageType, useTheme(), randomColor(), databaseSecondaryLogoMap, TemplateCard() (+3 more)
+### Community 53 - "frontend"
+Cohesion: 0.06
+Nodes (34): index_filename, interfaces, models_filename, output, time_type, typescript, build, output (+26 more)
 
-### Community 54 - "template-page.tsx"
-Cohesion: 0.19
-Nodes (15): Breadcrumb, BreadcrumbEllipsis(), BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator(), Link (+7 more)
+### Community 54 - "last-saved.tsx"
+Cohesion: 0.29
+Nodes (6): Badge(), BadgeProps, badgeVariants, LastSaved(), LastSavedProps, timeAgolocaleFromLanguage()
 
-### Community 55 - "select-box.tsx"
-Cohesion: 0.24
-Nodes (17): Combobox, ComboboxOptions, ComboboxProps, Mode, Command, CommandDialog(), CommandDialogProps, CommandEmpty (+9 more)
+### Community 55 - "DatabaseEdition"
+Cohesion: 0.18
+Nodes (12): setupDBMLLanguage(), DiagramIconProps, DBMLInstructions(), DBMLInstructionsProps, SmartQueryInstructionsProps, dataTypes, DatabaseEdition, MYSQL_5_7 (+4 more)
 
 ### Community 56 - "main.go"
-Cohesion: 0.11
-Nodes (9): NewApp(), **Contributing to ChartDB**, Creating a Branch, How to Contribute, License, Questions?, Reporting Bugs, Submitting Pull Requests (+1 more)
+Cohesion: 0.08
+Nodes (10): NewApp(), runCollaborationServer(), **Contributing to ChartDB**, Creating a Branch, How to Contribute, License, Questions?, Reporting Bugs (+2 more)
 
-### Community 57 - "instructions-section.tsx"
-Cohesion: 0.18
-Nodes (14): Avatar, AvatarFallback, AvatarImage, CodeSnippet, DDLInstructionStep(), DDLInstructionStepProps, DDLInstruction, DDLInstructions() (+6 more)
+### Community 57 - "react"
+Cohesion: 0.10
+Nodes (44): ColorPickerProps, Combobox, ComboboxOptions, ComboboxProps, Mode, Command, CommandDialog(), CommandDialogProps (+36 more)
 
 ### Community 58 - "menu.tsx"
-Cohesion: 0.22
-Nodes (15): Menubar, MenubarCheckboxItem, MenubarContent, MenubarItem, MenubarLabel, MenubarRadioItem, MenubarSeparator, MenubarShortcut() (+7 more)
+Cohesion: 0.17
+Nodes (20): Menubar, MenubarCheckboxItem, MenubarContent, MenubarItem, MenubarLabel, MenubarRadioItem, MenubarSeparator, MenubarShortcut() (+12 more)
 
-### Community 59 - "keyboard-shortcuts-provider.tsx"
-Cohesion: 0.13
-Nodes (16): KeyboardShortcutsContext, keyboardShortcutsContext, KeyboardShortcut, KeyboardShortcutAction, OPEN_DIAGRAM, REDO, SAVE_DIAGRAM, SHOW_ALL (+8 more)
+### Community 59 - "2026-11-03 — Graphify code-reading skill mapping"
+Cohesion: 0.40
+Nodes (5): 2026-11-03 — Graphify code-reading skill mapping, Constraints/Anti-Patterns Discovered, Files Modified, Key Technical Additions / Decisions, Task Summary & Timestamp
 
 ### Community 62 - "apply-dbml.ts"
 Cohesion: 0.24
@@ -509,8 +533,8 @@ Cohesion: 0.11
 Nodes (17): [1.0.1](https://github.com/chartdb/chartdb/compare/v1.0.0...v1.0.1) (2024-11-06), [1.13.1](https://github.com/chartdb/chartdb/compare/v1.13.0...v1.13.1) (2025-07-04), [1.15.1](https://github.com/chartdb/chartdb/compare/v1.15.0...v1.15.1) (2025-08-27), [1.18.1](https://github.com/chartdb/chartdb/compare/v1.18.0...v1.18.1) (2025-11-25), [1.3.1](https://github.com/chartdb/chartdb/compare/v1.3.0...v1.3.1) (2024-11-26), [1.5.1](https://github.com/chartdb/chartdb/compare/v1.5.0...v1.5.1) (2024-12-15), [1.6.1](https://github.com/chartdb/chartdb/compare/v1.6.0...v1.6.1) (2025-01-26), [1.8.1](https://github.com/chartdb/chartdb/compare/v1.8.0...v1.8.1) (2025-03-02) (+9 more)
 
 ### Community 66 - "collaboration-protocol.ts"
-Cohesion: 0.18
-Nodes (15): CollaborationClientEvent, baseMessageSchema, CollaborationHello, CollaborationMessage, collaborationMessageSchema, CollaborationOperation, CollaborationOutgoingMessage, collaborationProtocolVersion (+7 more)
+Cohesion: 0.14
+Nodes (17): CollaborationConnectOptions, Handshake, RECONNECT_BASE_DELAY_MS, RECONNECT_MAX_DELAY_MS, baseMessageSchema, CollaborationMessage, collaborationMessageSchema, CollaborationOperation (+9 more)
 
 ### Community 67 - "steps"
 Cohesion: 0.11
@@ -521,40 +545,40 @@ Cohesion: 0.12
 Nodes (16): aliases, components, hooks, lib, ui, utils, rsc, $schema (+8 more)
 
 ### Community 69 - "diagram-operations.ts"
-Cohesion: 0.16
-Nodes (14): applyDiagramOperation(), buildDiagramOperation(), collections, collectionSchema, DiagramCollection, DiagramEntityChange, DiagramOperationPayload, identifierSchema (+6 more)
+Cohesion: 0.11
+Nodes (17): Checkpoint A: Evidence review, Checkpoint B: Performance regression review, Evidence recorded 2026-11-03, Follow-up Task List, Task 10: Improve active-edit collaboration UX, Task 11: Test client lifecycle, backpressure, disconnect, and resync, Task 12: Run broader collaboration acceptance, Task 14: Diagnose host `entityVersion:invalidinput` rejection (+9 more)
 
-### Community 70 - "useStorage"
-Cohesion: 0.26
-Nodes (8): ConfigContext, FullScreenLoaderContext, fullScreenLoaderContext, useConfig(), useFullScreenLoader(), useStorage(), ChartDBConfig, useDiagramLoader()
+### Community 70 - "frontend"
+Cohesion: 0.06
+Nodes (34): aversion, index_filename, interfaces, models_filename, output, time_type, typescript, build (+26 more)
 
 ### Community 72 - "runtime/package.json"
 Cohesion: 0.12
 Nodes (15): author, bugs, url, description, homepage, keywords, license, main (+7 more)
 
 ### Community 73 - "base-alert-dialog.tsx"
-Cohesion: 0.30
-Nodes (12): @radix-ui/react-alert-dialog@^1.1.1, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter(), AlertDialogHeader(), AlertDialogOverlay (+4 more)
+Cohesion: 0.23
+Nodes (15): AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter(), AlertDialogHeader(), AlertDialogOverlay, AlertDialogTitle (+7 more)
 
 ### Community 76 - "7.json"
 Cohesion: 0.13
 Nodes (14): areas, createdAt, creationMethod, customTypes, databaseType, dependencies, id, lastProjectSavedAt (+6 more)
 
-### Community 77 - "testing.T"
-Cohesion: 0.34
-Nodes (12): dialCollaborationTestPeer(), TestTypedHubReplaysAcceptedOperationsAfterSnapshot(), TestTypedHubSequencesOperationsAndRejectsStaleVersions(), newCollaborationSequencer(), newCollaborationSequencerFromSnapshot(), operationForTest(), TestSequencerChecksMultiEntityOperationAtomically(), TestSequencerDeduplicatesAcceptedOperationAndRejectsIDReuse() (+4 more)
+### Community 77 - "collaboration_operations.go"
+Cohesion: 0.23
+Nodes (12): collaborationSequencer, operationKey, entityIDsInSnapshot(), newCollaborationSequencer(), newCollaborationSequencerFromSnapshot(), operationForTest(), TestSequencerChecksMultiEntityOperationAtomically(), TestSequencerDeduplicatesAcceptedOperationAndRejectsIDReuse() (+4 more)
 
 ### Community 78 - "frontend/README.md"
 Cohesion: 0.14
 Nodes (13): Build, Build and Run locally, 🎉 ChartDB, 💚 Community & Support, Contributing, Getting Started, How To Use, License (+5 more)
 
-### Community 79 - "editor-page.tsx"
-Cohesion: 0.27
-Nodes (13): AlertProvider(), ConfigProvider(), DiffProvider(), ExportImageProvider(), FullScreenLoaderProvider(), RedoUndoStackProvider(), KeyboardShortcutsProvider(), LayoutProvider() (+5 more)
+### Community 79 - "create-diagram-dialog.tsx"
+Cohesion: 0.20
+Nodes (13): ConfigContext, CreateDiagramDialog(), CreateDiagramDialogStep, IMPORT_DATABASE, SELECT_DATABASE, SELECT_TABLES, useConfig(), useStorage() (+5 more)
 
-### Community 80 - "history-provider.tsx"
-Cohesion: 0.27
-Nodes (8): HistoryContext, historyContext, HistoryProvider(), RedoUndoAction, RedoUndoActionHandlers, RedoUndoStackContext, redoUndoStackContext, useRedoUndoStack()
+### Community 80 - "Code Review and Quality"
+Cohesion: 0.07
+Nodes (29): 1. Correctness, 2. Readability & Simplicity, 3. Architecture, 4. Security, 5. Performance, Change Descriptions, Change Sizing, Code Review and Quality (+21 more)
 
 ### Community 81 - "4.json"
 Cohesion: 0.14
@@ -576,9 +600,9 @@ Nodes (12): 1. Correction, 2. Warning, 3. Temporary Ban, 4. Permanent Ban, Attri
 Cohesion: 0.15
 Nodes (13): scripts, build, dev, electron:build, electron:dev, lint, lint:fix, prepare (+5 more)
 
-### Community 89 - "sql-import/index.ts"
-Cohesion: 0.31
-Nodes (9): SQLParserResult, isMySQLFormat(), isOracleFormat(), detectDatabaseType(), isPgDumpFormat(), isSQLiteFormat(), isSQLServerFormat(), parseSQLError() (+1 more)
+### Community 89 - "canvas.tsx"
+Cohesion: 0.04
+Nodes (96): CanvasContext, canvasContext, CanvasEvent, CanvasEventBase, CanvasEventType, PanClickEvent, CanvasProvider(), CanvasProviderProps (+88 more)
 
 ### Community 90 - "6.json"
 Cohesion: 0.15
@@ -588,9 +612,9 @@ Nodes (12): areas, createdAt, creationMethod, customTypes, databaseType, depende
 Cohesion: 0.17
 Nodes (11): areas, createdAt, customTypes, databaseType, dependencies, id, name, notes (+3 more)
 
-### Community 97 - "Planned design/implementation work (ordered; planning items must finish before coding)"
-Cohesion: 0.18
-Nodes (10): A. Remaining domain and policy analysis, Active Manifest & Liveness Checklist, B. Backend service and protocol tests, C. Frontend collaboration client/state, D. Editor/domain integration, E. Performance, security, and end-to-end acceptance, In-Progress Tasks (Liveness Checklist), Open guarantees and implementation hardening (+2 more)
+### Community 97 - "Active Manifest & Liveness Checklist"
+Cohesion: 0.33
+Nodes (5): Active Manifest & Liveness Checklist, Completed in this iteration, Constraints, Known limits / next tasks, Verification log
 
 ### Community 98 - "vite.config.ts"
 Cohesion: 0.20
@@ -618,27 +642,27 @@ Nodes (10): compilerOptions, allowSyntheticDefaultImports, composite, module, mo
 
 ### Community 106 - "wails.json"
 Cohesion: 0.18
-Nodes (10): author, email, name, frontend:build, frontend:dev:serverUrl, frontend:dev:watcher, frontend:install, name (+2 more)
+Nodes (10): author, email, name, frontend:dev:serverUrl, frontend:dev:watcher, frontend:build, frontend:install, name (+2 more)
 
 ### Community 107 - "Universal Context Optimization & Liveness Protocol"
 Cohesion: 0.20
 Nodes (9): 1. READ PROTOCOL (Strict Order), 2. REAL-TIME LIVENESS SAVING PROTOCOL, 3. CONTEXT PRUNING AND PRE-COMPACTION RULES, 4. TASK COMPLETION & MEMORY COMPACTION PROTOCOL, Execution Standard & Model Behavioral Instructions, STEP 4.1: APPEND TO CHRONICLE, STEP 4.2: UPDATE REQUIREMENTS (If Architecture Changed), STEP 4.3: REGENERATE MANIFEST (+1 more)
 
-### Community 108 - "diagram-filter-provider.tsx"
-Cohesion: 0.49
-Nodes (7): DiagramFilterContext, diagramFilterContext, DiagramFilterProvider(), DiagramFilter, FilterTableInfo, reduceFilter(), spreadFilterTables()
+### Community 108 - "Test-Driven Development"
+Cohesion: 0.07
+Nodes (29): Browser Testing with DevTools, Common Rationalizations, DAMP Over DRY in Tests, Decision Guide, Discover the Stack First, Name Tests Descriptively, One Assertion Per Concept, Overview (+21 more)
 
-### Community 109 - "theme-provider.tsx"
-Cohesion: 0.47
-Nodes (5): LocalConfigContext, ScrollAction, ThemeContext, EffectiveTheme, Theme
+### Community 109 - "diagram-operations.ts"
+Cohesion: 0.15
+Nodes (16): applyDiagramOperation(), buildDiagramOperation(), collections, collectionSchema, DiagramCollection, DiagramEntityChange, DiagramOperationPayload, identifierSchema (+8 more)
 
-### Community 111 - "Toolbar"
-Cohesion: 0.36
-Nodes (4): CollaborationClient, convertToPercentage(), reviveCollaborationDates(), Toolbar()
+### Community 111 - "examples-data.ts"
+Cohesion: 0.18
+Nodes (4): ExampleCardProps, Example, examples, now
 
-### Community 112 - "dbml-parse.d.ts"
-Cohesion: 0.22
-Nodes (4): Compiler, @dbml/parse, DBMLCompletionItemProvider, services
+### Community 112 - "table-dbml.tsx"
+Cohesion: 0.10
+Nodes (29): monaco-editor@^0.55.1, @monaco-editor/react@^4.7.0, CodeSnippet, CodeSnippetAction, CodeSnippetProps, DiffEditor, Editor, EditorType (+21 more)
 
 ### Community 113 - "runtime.d.ts"
 Cohesion: 0.25
@@ -649,16 +673,12 @@ Cohesion: 0.29
 Nodes (6): Architecture and technology, ChartDB Desktop Collaboration Requirements, Core requirements, Objective, Security and constraints, Validation
 
 ### Community 115 - "decodeCollaborationMessage"
-Cohesion: 0.38
-Nodes (4): decodeCollaborationMessage(), TestDecodeCollaborationMessage(), TestDecodeCollaborationMessageRejectsInvalidDiagramOperations(), TestDecodeCollaborationMessageRejectsInvalidInput()
+Cohesion: 0.22
+Nodes (7): decodeCollaborationMessage(), TestDecodeCollaborationMessage(), TestDecodeCollaborationMessageRejectsInvalidDiagramOperations(), TestDecodeCollaborationMessageRejectsInvalidInput(), TestBroadcastQueuesMessagesWithoutWritingUnderHubLock(), TestPresenceDoesNotReplaceLatestDurableMessage(), TestSlowPeerIsRemovedWhenOutboundQueueIsFull()
 
-### Community 116 - "import-metadata/utils.ts"
-Cohesion: 0.43
-Nodes (4): isDatabaseMetadata(), fixMetadataJson(), isStringMetadataJson(), minimizeQuery()
-
-### Community 117 - "AI Developer & Technical Writer Rules — Budget Request System"
-Cohesion: 0.33
-Nodes (5): AI Developer & Technical Writer Rules — Budget Request System, Context maintenance, Documentation authoring, Incremental manifest updates, Read protocol (in order)
+### Community 117 - "ChartDB Desktop Development Rules"
+Cohesion: 0.22
+Nodes (8): ChartDB Desktop Development Rules, Context maintenance, Graphify, Implementation and validation, Project context, Read order and scope, Security and collaboration constraints, Skill use
 
 ### Community 118 - "Memo — 2026-11-03 00:01"
 Cohesion: 0.33
@@ -672,9 +692,9 @@ Nodes (5): Changes, Memo — Collaboration cursor and live updates, Next recomme
 Cohesion: 0.33
 Nodes (5): Changes, Memo — Restore collaboration cursor and synchronization, Next recommendation, Updated files, Validation
 
-### Community 121 - "layout-context.tsx"
-Cohesion: 0.60
-Nodes (4): LayoutContext, layoutContext, SidebarSection, VisualsTab
+### Community 121 - "smart-query-instructions.tsx"
+Cohesion: 0.29
+Nodes (8): generateWranglerCommand(), getSQLiteQuery(), DatabaseClient, POSTGRESQL_PSQL, SQLITE_WRANGLER, databaseClientToLabelMap, databaseEditionToClientsMap, databaseTypeToClientsMap
 
 ### Community 122 - "types.d.ts"
 Cohesion: 0.33
@@ -682,7 +702,7 @@ Nodes (5): AtLeastOne, AtMostOne, ExactlyOne, Explode, PartialExcept
 
 ### Community 124 - "Project Guardrails"
 Cohesion: 0.33
-Nodes (5): Anti-Patterns & Constraints, Architecture & Code Style, Governance, Project Guardrails, Security Boundaries
+Nodes (5): Anti-Patterns & Constraints, Governance, Project Architecture & Code Style, Project Guardrails, Security Boundaries
 
 ### Community 125 - "2026-11-02 — LAN collaboration implementation"
 Cohesion: 0.40
@@ -720,9 +740,9 @@ Nodes (5): 2026-11-03 — Diagram operation diff and reducer, Files Modified, Im
 Cohesion: 0.40
 Nodes (5): 2026-11-03 — Frontend operation validation and version seeding, Files Modified, Implementation Details, Task Summary & Timestamp, Validation
 
-### Community 134 - "2026-11-03 — Frontend typed collaboration protocol client"
-Cohesion: 0.40
-Nodes (5): 2026-11-03 — Frontend typed collaboration protocol client, Files Modified, Implementation Details, Task Summary & Timestamp, Validation
+### Community 134 - "API and Interface Design"
+Cohesion: 0.08
+Nodes (24): 1. Contract First, 2. Consistent Error Semantics, 3. Validate at Boundaries, 4. Prefer Addition Over Modification, 5. Predictable Naming, 6. Honouring an Idempotency Key, API and Interface Design, Common Rationalizations (+16 more)
 
 ### Community 135 - "2026-11-03 — Restore collaboration cursor and synchronization"
 Cohesion: 0.40
@@ -733,36 +753,120 @@ Cohesion: 0.40
 Nodes (5): 2026-11-03 — Server-side diagram operation validation, Files Modified, Implementation Details, Task Summary & Timestamp, Validation
 
 ### Community 137 - "2026-11-03 — Typed WebSocket session and sequencer integration"
-Cohesion: 0.40
-Nodes (5): 2026-11-03 — Typed WebSocket session and sequencer integration, Files Modified, Implementation Details, Task Summary & Timestamp, Validation
+Cohesion: 0.29
+Nodes (6): 2026-11-03 — Typed WebSocket session and sequencer integration, Files Modified, Implementation Details, Project Chronicle, Task Summary & Timestamp, Validation
 
 ### Community 138 - "2026-11-03 — Versioned collaboration message schema"
 Cohesion: 0.40
 Nodes (5): 2026-11-03 — Versioned collaboration message schema, Files Modified, Implementation Details, Task Summary & Timestamp, Validation
 
-### Community 139 - ".broadcast"
-Cohesion: 0.60
-Nodes (3): TestBroadcastQueuesMessagesWithoutWritingUnderHubLock(), TestPresenceDoesNotReplaceLatestDurableMessage(), TestSlowPeerIsRemovedWhenOutboundQueueIsFull()
-
-### Community 140 - "setup.ts"
-Cohesion: 0.40
-Nodes (4): @testing-library/jest-dom@^6.6.3, @testing-library/react@^16.3.0, @testing-library/jest-dom, @testing-library/react
+### Community 140 - "database-edition.ts"
+Cohesion: 0.22
+Nodes (3): getPostgresQuery(), databaseEditionToLabelMap, databaseTypeToEditionMap
 
 ### Community 141 - ".prettierrc.json"
 Cohesion: 0.40
 Nodes (4): semi, singleQuote, tabWidth, trailingComma
 
-### Community 177 - "alert-context.tsx"
-Cohesion: 0.80
-Nodes (3): AlertContext, alertContext, BaseAlertDialogProps
+### Community 142 - "ddl-instructions.tsx"
+Cohesion: 0.32
+Nodes (6): DDLInstructionStep(), DDLInstructionStepProps, DDLInstruction, DDLInstructions(), DDLInstructionsMap, DDLInstructionsProps
 
-### Community 178 - "CreateDiagramDialogStep"
-Cohesion: 0.40
-Nodes (4): CreateDiagramDialogStep, IMPORT_DATABASE, SELECT_DATABASE, SELECT_TABLES
+### Community 143 - "Frontend UI Engineering"
+Cohesion: 0.08
+Nodes (24): Accessibility (WCAG 2.1 AA), ARIA Labels, Avoid the AI Aesthetic, Color, Common Rationalizations, Component Architecture, Component Patterns, Design System Adherence (+16 more)
+
+### Community 144 - "Incremental Implementation"
+Cohesion: 0.09
+Nodes (22): Common Rationalizations, Contract-First Slicing, Implementation Rules, Increment Checklist, Incremental Implementation, Overview, Red Flags, Risk-First Slicing (+14 more)
+
+### Community 146 - "Template"
+Cohesion: 0.11
+Nodes (11): removeDups(), TemplatePageLoaderData, TemplateCardProps, TemplatesPageLoaderData, routes, getTemplatesAndAllTags(), attendizeDb, now (+3 more)
+
+### Community 149 - "Code Simplification"
+Cohesion: 0.09
+Nodes (21): 1. Preserve Behavior Exactly, 2. Follow Project Conventions, 3. Prefer Clarity Over Cleverness, 4. Maintain Balance, 5. Scope to What Changed, Code Simplification, Common Rationalizations, Language-Specific Guidance (+13 more)
+
+### Community 151 - "Debugging and Error Recovery"
+Cohesion: 0.09
+Nodes (21): Build Failure Triage, Common Rationalizations, Debugging and Error Recovery, Error-Specific Patterns, Instrumentation Guidelines, Overview, Red Flags, Runtime Error Triage (+13 more)
+
+### Community 152 - "tasks"
+Cohesion: 0.10
+Nodes (21): cmds, summary, task, cmds, summary, includes, linux, cmds (+13 more)
+
+### Community 156 - "2026-11-04 — Make Graphify analysis workflow explicit"
+Cohesion: 0.33
+Nodes (6): 2026-11-04 — Make Graphify analysis workflow explicit, Anti-Patterns Avoided, Files Modified, Task Summary & Timestamp, Technical Additions, Validation
+
+### Community 157 - "open-diagram-dialog.tsx"
+Cohesion: 0.38
+Nodes (9): Table, TableBody, TableCell, TableHead, TableHeader, TableRow, OpenDiagramDialog(), AnyFunction (+1 more)
+
+### Community 159 - "2026-11-04 — Seed host operation versions before handshake"
+Cohesion: 0.33
+Nodes (6): 2026-11-04 — Seed host operation versions before handshake, Anti-Patterns Avoided, Files Modified, Task Summary & Timestamp, Technical Additions, Validation
+
+### Community 160 - "Spec-Driven Development"
+Cohesion: 0.14
+Nodes (13): Common Rationalizations, Keeping the Spec Alive, Overview, Phase 0: Scope Check, Phase 1: Specify, Phase 2: Plan, Phase 3: Tasks, Phase 4: Implement (+5 more)
+
+### Community 161 - "testing.T"
+Cohesion: 0.38
+Nodes (15): integrationDial(), integrationHostHello(), integrationParticipantHello(), TestIntegrationHostJoinAndOperationSync(), TestIntegrationHostStopEndsSession(), TestIntegrationLargeCascadeOperationIsAtomic(), TestIntegrationLateJoinReceivesExistingPresence(), TestIntegrationLateJoinReplaysFromBaseSnapshot() (+7 more)
+
+### Community 162 - "empty-state.tsx"
+Cohesion: 0.26
+Nodes (11): Empty(), EmptyContent(), EmptyDescription(), EmptyHeader(), EmptyMedia(), emptyMediaVariants, EmptyTitle(), EmptyState (+3 more)
+
+### Community 163 - "KeyboardShortcutAction"
+Cohesion: 0.13
+Nodes (14): KeyboardShortcut, KeyboardShortcutAction, OPEN_DIAGRAM, REDO, SAVE_DIAGRAM, SHOW_ALL, TOGGLE_FILTER, TOGGLE_SIDE_PANEL (+6 more)
+
+### Community 165 - "instructions-section.tsx"
+Cohesion: 0.23
+Nodes (11): Avatar, AvatarFallback, AvatarImage, ToggleGroup, DatabasesWithoutDDLInstructions, defaultImportMethods, InstructionsSection(), InstructionsSectionProps (+3 more)
+
+### Community 166 - "Planning and Task Breakdown"
+Cohesion: 0.15
+Nodes (12): 1. Plan read-only, 2. Check existing plans before writing, 3. Map dependencies and slice work, 4. Define implementable tasks, 5. Produce and verify the plan, Overview, Plan Document Structure, Planning and Task Breakdown (+4 more)
+
+### Community 167 - "app.js"
+Cohesion: 0.21
+Nodes (3): StartCollaboration(), CollaborationSession, $$createType0
+
+### Community 168 - "useBreakpoint"
+Cohesion: 0.18
+Nodes (17): ContextMenuCheckboxItem, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuRadioItem, ContextMenuSeparator, ContextMenuShortcut(), ContextMenuSubContent (+9 more)
+
+### Community 169 - "toolbar.tsx"
+Cohesion: 0.21
+Nodes (12): Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, formatCollaborationError(), ToolbarButton (+4 more)
+
+### Community 171 - "ssms-info.tsx"
+Cohesion: 0.32
+Nodes (3): HoverCardContent, SSMSInfo, SSMSInfoProps
+
+### Community 173 - "Implementation Plan: Desktop Performance and Collaboration Follow-ups"
+Cohesion: 0.17
+Nodes (11): Architecture Decisions, Checkpoint: Evidence Review, Checkpoint: Performance Regression Review, Implementation Plan: Desktop Performance and Collaboration Follow-ups, Open Questions, Ordered Phases, Overview, Phase 1: Baselines and Error Reproduction (+3 more)
+
+### Community 174 - "2026-11-21 — Restore LAN collaboration end to end"
+Cohesion: 0.33
+Nodes (6): 2026-11-21 — Restore LAN collaboration end to end, Anti-Patterns Avoided, Files Modified, Task Summary & Timestamp, Technical Additions, Validation
+
+### Community 177 - "collaboration-client.test.ts"
+Cohesion: 0.12
+Nodes (10): CollaborationClient, CollaborationClientEvent, reconnectDelay(), CollaborationHello, CollaborationWelcome, collect(), establish(), FakeWebSocket (+2 more)
+
+### Community 178 - "select-tables.tsx"
+Cohesion: 0.15
+Nodes (17): ButtonProps, Checkbox, FileUploaderProps, FileWithPreview, Pagination(), PaginationContent, PaginationItem, PaginationLink() (+9 more)
 
 ### Community 179 - "README"
-Cohesion: 0.40
-Nodes (4): About, Building, Live Development, README
+Cohesion: 0.20
+Nodes (9): About, Browser collaboration, Building, Collaboration verification, Desktop builds by operating system, Frontend build with different package managers, Live Development, Prerequisites (+1 more)
 
 ### Community 180 - "Ponytail: Lazy Senior Dev Mode"
 Cohesion: 0.50
@@ -771,10 +875,6 @@ Nodes (3): Before you write, Ponytail: Lazy Senior Dev Mode, The smallest comple
 ### Community 181 - "ChartDB Contributors License Agreement"
 Cohesion: 0.50
 Nodes (3): Agreement:, Background:, ChartDB Contributors License Agreement
-
-### Community 183 - "getIsOldSafari"
-Cohesion: 0.83
-Nodes (3): getIsOldSafari(), hasRemarkGfmRegexIssue(), isSafari()
 
 ### Community 185 - "1.0.0 (2024-11-04)"
 Cohesion: 0.67
@@ -864,25 +964,69 @@ Nodes (3): [1.9.0](https://github.com/chartdb/chartdb/compare/v1.8.1...v1.9.0) (
 Cohesion: 0.67
 Nodes (3): EventsOn(), EventsOnce(), EventsOnMultiple()
 
+### Community 210 - "Project Chronicle"
+Cohesion: 0.40
+Nodes (5): 2026-11-03 — Frontend typed collaboration protocol client, Files Modified, Implementation Details, Task Summary & Timestamp, Validation
+
+### Community 231 - "apply-ids.ts"
+Cohesion: 0.46
+Nodes (7): applyIds(), createCustomTypeKey(), createDependencyKey(), createFieldKey(), createIndexKey(), createRelationshipKey(), createTableKey()
+
+### Community 232 - "2026-11-03 — Readable collaboration send-error toast"
+Cohesion: 0.33
+Nodes (6): 2026-11-03 — Readable collaboration send-error toast, Anti-Patterns Avoided, Files Modified, Task Summary & Timestamp, Technical Additions, Validation
+
+### Community 233 - "2026-11-04 — Build resource rule and platform instructions"
+Cohesion: 0.33
+Nodes (6): 2026-11-04 — Build resource rule and platform instructions, Anti-Patterns Avoided, Files Modified, Task Summary & Timestamp, Technical Additions, Validation
+
+### Community 236 - "2026-11-03 — Collaboration host fallback and operation validation"
+Cohesion: 0.40
+Nodes (5): 2026-11-03 — Collaboration host fallback and operation validation, Files Modified, Implementation Details, Task Summary & Timestamp, Validation
+
+### Community 237 - "2026-11-04 — Commit hygiene rule"
+Cohesion: 0.40
+Nodes (5): 2026-11-04 — Commit hygiene rule, Anti-Patterns Avoided, Files Modified, Task Summary & Timestamp, Technical Additions
+
+### Community 238 - "2026-11-04 — Explicit commit authorization"
+Cohesion: 0.40
+Nodes (5): 2026-11-04 — Explicit commit authorization, Anti-Patterns Avoided, Files Modified, Task Summary & Timestamp, Technical Additions
+
+### Community 239 - "2026-11-04 — Project guidance cleanup"
+Cohesion: 0.40
+Nodes (5): 2026-11-04 — Project guidance cleanup, Anti-Patterns Avoided, Files Modified, Task Summary & Timestamp, Technical Additions
+
+### Community 244 - "import-metadata/utils.ts"
+Cohesion: 0.53
+Nodes (3): isDatabaseMetadata(), fixMetadataJson(), isStringMetadataJson()
+
+### Community 245 - "2026-11-04 — Browser collaboration service mode and bounded operations"
+Cohesion: 0.33
+Nodes (6): 2026-11-04 — Browser collaboration service mode and bounded operations, Anti-Patterns Avoided, Files Modified, Task Summary & Timestamp, Technical Additions, Validation
+
+### Community 246 - "import-diagram-dialog.tsx"
+Cohesion: 0.25
+Nodes (13): Alert, AlertDescription, AlertTitle, alertVariants, loaderVariants, Spinner(), SpinnerContentProps, spinnerVariants (+5 more)
+
 ## Knowledge Gaps
 - **30 isolated node(s):** `REDO`, `UNDO`, `OPEN_DIAGRAM`, `SAVE_DIAGRAM`, `TOGGLE_SIDE_PANEL` (+25 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1306 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **83 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1665 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **78 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `DatabaseType` connect `DatabaseType` to `diff.ts`, `canvas.tsx`, `generateId`, `react`, `Button`, `templates-data.ts`, `useChartDB`, `employee-db.ts`, `vitest`, `diagram.ts`, `export-sql-script.ts`, `feedbin-db.ts`, `to-mysql.ts`, `DBTable`, `data-types.ts`, `DatabaseEdition`, `adonis-acl-db.ts`, `dbml-export.ts`, `database-type.ts`, `diff-check.ts`, `canvas-filter.tsx`, `import-database.tsx`, `akaunting-db.ts`, `attendize-db.ts`, `bouncer-db.ts`, `buddypress-db.ts`, `cachet-db.ts`, `comfortable-mexican-sofa-db.ts`, `create-diagram-dialog.tsx`, `deployer-db.ts`, `devise-db.ts`, `sql-import/common.ts`, `django-db.ts`, `doorkeeper-db.ts`, `databases.ts`, `Spinner`, `flipper-db.ts`, `freescout-db.ts`, `hacker-news-db.ts`, `koel-db.ts`, `laravel-activitylog-db.ts`, `laravel-db.ts`, `laravel-permission-db.ts`, `laravel-spark-db.ts`, `lobsters-db.ts`, `select-database-content.tsx`, `sql-validator.ts`, `pay-rails-db.ts`, `pixelfed-db.ts`, `polr-db.ts`, `saas-pegasus-db.ts`, `snipe-it-db.ts`, `staytus-db.ts`, `sylius-db.ts`, `talk-db.ts`, `twitter-db.ts`, `instructions-section.tsx`, `menu.tsx`, `apply-dbml.ts`, `monica-db.ts`, `octobox-db.ts`, `diagram-operations.ts`, `sql-import/index.ts`, `wordpress-db.ts`, `django-axes-db.ts`?**
-  _High betweenness centrality (0.084) - this node is a cross-community bridge._
+- **Why does `react` connect `react` to `app.tsx`, `cn`, `useLayout`, `editor-page.tsx`, `db-table.ts`, `dependencies`, `ddl-instructions.tsx`, `Input`, `Template`, `useDialog`, `canvas-filter.tsx`, `TooltipContent`, `select-database-content.tsx`, `custom-type-list-item-content.tsx`, `open-diagram-dialog.tsx`, `export-sql-dialog.tsx`, `use-toast.ts`, `empty-state.tsx`, `examples-page.tsx`, `instructions-section.tsx`, `useBreakpoint`, `toolbar.tsx`, `ssms-info.tsx`, `useTheme`, `accordion.tsx`, `template-page.tsx`, `select-tables.tsx`, `last-saved.tsx`, `DatabaseEdition`, `menu.tsx`, `base-alert-dialog.tsx`, `create-diagram-dialog.tsx`, `canvas.tsx`, `table-dbml.tsx`, `import-diagram-dialog.tsx`, `smart-query-instructions.tsx`?**
+  _High betweenness centrality (0.070) - this node is a cross-community bridge._
 - **What connects `REDO`, `UNDO`, `OPEN_DIAGRAM` to the rest of the system?**
   _30 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `diff.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.03200171821305842 - nodes in this community are weakly interconnected._
-- **Why does `react-i18next` connect `react-i18next` to `cn`, `canvas.tsx`, `react`, `Button`, `useChartDB`, `dependencies`, `DatabaseEdition`, `canvas-filter.tsx`, `import-database.tsx`, `frontend/package.json`, `side-panel.tsx`, `create-diagram-dialog.tsx`, `i18n.ts`, `accordion.tsx`, `select-database-content.tsx`, `template-page.tsx`, `select-box.tsx`, `instructions-section.tsx`, `menu.tsx`?**
-  _High betweenness centrality (0.073) - this node is a cross-community bridge._
 - **Should `cn` be split into smaller, more focused modules?**
-  _Cohesion score 0.05016797312430011 - nodes in this community are weakly interconnected._
-- **Why does `react` connect `react` to `cn`, `canvas.tsx`, `Button`, `templates-data.ts`, `useChartDB`, `diagram.ts`, `dependencies`, `data-types.ts`, `DatabaseEdition`, `react-i18next`, `diff-check.ts`, `canvas-filter.tsx`, `import-database.tsx`, `frontend/package.json`, `side-panel.tsx`, `create-diagram-dialog.tsx`, `use-toast.ts`, `Spinner`, `canvas-provider.tsx`, `react-router-dom`, `accordion.tsx`, `select-database-content.tsx`, `alert-context.tsx`, `useTheme`, `template-page.tsx`, `select-box.tsx`, `instructions-section.tsx`, `menu.tsx`, `keyboard-shortcuts-provider.tsx`, `useStorage`, `base-alert-dialog.tsx`, `editor-page.tsx`, `history-provider.tsx`, `diagram-filter-provider.tsx`, `theme-provider.tsx`, `layout-context.tsx`?**
-  _High betweenness centrality (0.070) - this node is a cross-community bridge._
-- **Should `canvas.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.05892634207240949 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05658263305322129 - nodes in this community are weakly interconnected._
+- **Why does `react-i18next` connect `Input` to `cn`, `useLayout`, `dependencies`, `useDialog`, `canvas-filter.tsx`, `TooltipContent`, `custom-type-list-item-content.tsx`, `open-diagram-dialog.tsx`, `export-sql-dialog.tsx`, `instructions-section.tsx`, `i18n.ts`, `useBreakpoint`, `toolbar.tsx`, `ssms-info.tsx`, `accordion.tsx`, `template-page.tsx`, `select-tables.tsx`, `last-saved.tsx`, `react`, `menu.tsx`, `create-diagram-dialog.tsx`, `canvas.tsx`, `table-dbml.tsx`, `import-diagram-dialog.tsx`, `smart-query-instructions.tsx`?**
+  _High betweenness centrality (0.053) - this node is a cross-community bridge._
+- **Should `useLayout` be split into smaller, more focused modules?**
+  _Cohesion score 0.09233176838810642 - nodes in this community are weakly interconnected._
+- **Why does `DatabaseType` connect `DatabaseType` to `octobox-db.ts`, `polr-db.ts`, `useLayout`, `generateId`, `diff-check.ts`, `reversion-db.ts`, `templates-data.ts`, `screeenly-db.ts`, `snipe-it-db.ts`, `vitest`, `db-table.ts`, `Diagram`, `database-edition.ts`, `to-mysql.ts`, `ddl-instructions.tsx`, `data-types.ts`, `scripts.ts`, `akaunting-db.ts`, `dbml-export.ts`, `database-type.ts`, `useDialog`, `canvas-filter.tsx`, `TooltipContent`, `Template`, `sqlserver.ts`, `select-database-content.tsx`, `bookstack-db.ts`, `cabot-db.ts`, `cachet-db.ts`, `export-sql-dialog.tsx`, `canvas-db.ts`, `django-db.ts`, `sql-import/common.ts`, `doorkeeper-db.ts`, `flipper-db.ts`, `databases.ts`, `feedbin-db.ts`, `instructions-section.tsx`, `laravel-db.ts`, `flarum-db.ts`, `freescout-db.ts`, `sql-validator.ts`, `bouncer-db.ts`, `buddypress-db.ts`, `sql-import/index.ts`, `DatabaseEdition`, `laravel-spark-db.ts`, `react`, `menu.tsx`, `apply-dbml.ts`, `create-diagram-dialog.tsx`, `pay-rails-db.ts`, `refinerycms-db.ts`, `django-axes-db.ts`, `canvas.tsx`, `hacker-news-db.ts`, `koel-db.ts`, `laravel-activitylog-db.ts`, `laravel-permission-db.ts`, `lobsters-db.ts`, `pokemon-db.ts`, `saas-pegasus-db.ts`, `sylius-db.ts`, `ticketit-db.ts`, `diagram-operations.ts`, `examples-data.ts`, `table-dbml.tsx`, `talk-db.ts`, `twitter-db.ts`, `visual-novel-db.ts`, `airbnb-db.ts`, `wordpress-db.ts`, `smart-query-instructions.tsx`, `comfortable-mexican-sofa-db.ts`, `employee-db.ts`?**
+  _High betweenness centrality (0.053) - this node is a cross-community bridge._
+- **Should `generateId` be split into smaller, more focused modules?**
+  _Cohesion score 0.05643513789581205 - nodes in this community are weakly interconnected._

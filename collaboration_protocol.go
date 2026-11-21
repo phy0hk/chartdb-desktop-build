@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"math"
 	"strings"
@@ -14,11 +13,14 @@ const (
 	collaborationProtocolVersion = 1
 	maxProtocolMessageSize       = 8 << 20
 	maxSnapshotPayloadSize       = 8 << 20
-	maxOperationPayloadSize      = 256 << 10
-	maxEntityVersions            = 64
-	maxSelectionTargets          = 256
-	maxProtocolIdentifierLength  = 128
-	maxParticipantNameLength     = 64
+	// A 4 MiB operation payload and 1024 entities cover a full cascade of a
+	// large table plus its relationships/dependencies in one atomic operation.
+	// Bounds are enforced below and by the 8 MiB whole-message limit.
+	maxOperationPayloadSize     = 4 << 20
+	maxEntityVersions           = 1024
+	maxSelectionTargets         = 256
+	maxProtocolIdentifierLength = 128
+	maxParticipantNameLength    = 64
 )
 
 type collaborationPosition struct {
@@ -27,21 +29,28 @@ type collaborationPosition struct {
 }
 
 type collaborationMessage struct {
-	ProtocolVersion int                    `json:"protocolVersion"`
-	Type            string                 `json:"type"`
-	ID              string                 `json:"id,omitempty"`
-	ClientID        string                 `json:"clientId,omitempty"`
-	DocumentID      string                 `json:"documentId,omitempty"`
-	Role            string                 `json:"role,omitempty"`
-	Revision        uint64                 `json:"revision,omitempty"`
-	EntityVersions  map[string]uint64      `json:"entityVersions,omitempty"`
-	Payload         json.RawMessage        `json:"payload,omitempty"`
-	Name            string                 `json:"name,omitempty"`
-	Position        *collaborationPosition `json:"position,omitempty"`
-	Selection       []string               `json:"selection,omitempty"`
-	TargetID        string                 `json:"targetId,omitempty"`
-	Code            string                 `json:"code,omitempty"`
-	Message         string                 `json:"message,omitempty"`
+	ProtocolVersion int    `json:"protocolVersion"`
+	Type            string `json:"type"`
+	ID              string `json:"id,omitempty"`
+	ClientID        string `json:"clientId,omitempty"`
+	DocumentID      string `json:"documentId,omitempty"`
+	Role            string `json:"role,omitempty"`
+	Revision        uint64 `json:"revision,omitempty"`
+	// TargetRevision is the revision the base snapshot in a welcome will reach
+	// once the replayed operations are applied. Revision stays at the snapshot's
+	// own revision so clients can apply replay from that baseline.
+	TargetRevision uint64                 `json:"targetRevision,omitempty"`
+	EntityVersions map[string]uint64      `json:"entityVersions,omitempty"`
+	Payload        json.RawMessage        `json:"payload,omitempty"`
+	Name           string                 `json:"name,omitempty"`
+	Position       *collaborationPosition `json:"position,omitempty"`
+	Selection      []string               `json:"selection,omitempty"`
+	TargetID       string                 `json:"targetId,omitempty"`
+	Code           string                 `json:"code,omitempty"`
+	Message        string                 `json:"message,omitempty"`
+	// LastWriter identifies the participant that most recently changed the
+	// conflicting entity, so the UI can explain a rejection.
+	LastWriter string `json:"lastWriter,omitempty"`
 }
 
 func decodeCollaborationMessage(data []byte) (collaborationMessage, error) {
@@ -137,11 +146,17 @@ func validateCollaborationMessage(message collaborationMessage) error {
 				return errors.New("invalid_selection")
 			}
 		}
-	case "editing", "preview":
-		if !validID(message.ClientID) || !validID(message.TargetID) {
-			return fmt.Errorf("invalid_%s", message.Type)
+	case "editing":
+		// An empty targetId means the participant stopped editing; it is not
+		// an entity reference and must not be validated as one.
+		if !validID(message.ClientID) || len(message.TargetID) > maxProtocolIdentifierLength {
+			return errors.New("invalid_editing")
 		}
-		if message.Type == "preview" && !validPayload(message.Payload, maxOperationPayloadSize) {
+	case "preview":
+		if !validID(message.ClientID) || !validID(message.TargetID) {
+			return errors.New("invalid_preview")
+		}
+		if !validPayload(message.Payload, maxOperationPayloadSize) {
 			return errors.New("invalid_preview")
 		}
 	case "ack":
@@ -151,6 +166,16 @@ func validateCollaborationMessage(message collaborationMessage) error {
 	case "reject":
 		if !validID(message.ID) || !validID(message.Code) || len(message.Message) > 512 {
 			return errors.New("invalid_reject")
+		}
+		if message.LastWriter != "" && !validID(message.LastWriter) {
+			return errors.New("invalid_reject")
+		}
+	case "session_ended":
+		if message.DocumentID != "" && !validID(message.DocumentID) {
+			return errors.New("invalid_session_ended")
+		}
+		if len(message.Message) > 512 {
+			return errors.New("invalid_session_ended")
 		}
 	case "leave":
 		if !validID(message.ClientID) {

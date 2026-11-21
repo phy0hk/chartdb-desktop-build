@@ -98,7 +98,7 @@ export interface ChartDBContext {
     deleteDiagram: () => Promise<void>;
     updateDiagramData: (
         diagram: Diagram,
-        options?: { forceUpdateStorage?: boolean }
+        options?: { forceUpdateStorage?: boolean; preserveHistory?: boolean }
     ) => Promise<void>;
 
     // Database type operations

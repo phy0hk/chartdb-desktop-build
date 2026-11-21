@@ -2,26 +2,6 @@
 
 Historical implementation notes consolidated from the legacy timestamped memos. Entries are ordered chronologically.
 
-## 2026-11-03 — Graphify code-reading skill mapping
-
-### Task Summary & Timestamp
-
-Added the codebase analysis and code-reading skill mapping to `AGENTS.md`. Timestamp: 2026-11-03 (exact time was not recorded).
-
-### Files Modified
-
-- `AGENTS.md`
-- `.ai_context/MANIFEST.md`
-- `.ai_context/memory/CHRONICLE.md`
-
-### Key Technical Additions / Decisions
-
-- Mapped codebase analysis or code reading to the `graphify` skill, with instruction to use the repository knowledge graph where applicable.
-
-### Constraints/Anti-Patterns Discovered
-
-- Kept the change limited to the requested skill mapping; no codebase analysis was needed.
-
 ## 2026-11-02 — LAN collaboration implementation
 
 ### Task Summary & Timestamp
@@ -48,6 +28,26 @@ Implemented initial LAN collaboration for ChartDB Desktop. Timestamp: 2026-11-02
 - Snapshot synchronization is last-write-wins; it does not merge concurrent edits. Consider explicit merge/locking or CRDT semantics before relying on simultaneous multi-editor changes.
 - Automated WebSocket integration tests were recommended. The join flow used a browser prompt; a copyable invite modal was suggested.
 - Validation reported `go test app.go collaboration.go` and `git diff --check` passing. Frontend build could not run because dependencies were missing (`eslint: command not found`); full `go test ./...` was blocked by missing `frontend/dist` for the embed directive.
+
+## 2026-11-03 — Graphify code-reading skill mapping
+
+### Task Summary & Timestamp
+
+Added the codebase analysis and code-reading skill mapping to `AGENTS.md`. Timestamp: 2026-11-03 (exact time was not recorded).
+
+### Files Modified
+
+- `AGENTS.md`
+- `.ai_context/MANIFEST.md`
+- `.ai_context/memory/CHRONICLE.md`
+
+### Key Technical Additions / Decisions
+
+- Mapped codebase analysis or code reading to the `graphify` skill, with instruction to use the repository knowledge graph where applicable.
+
+### Constraints/Anti-Patterns Discovered
+
+- Kept the change limited to the requested skill mapping; no codebase analysis was needed.
 
 ## 2026-11-03 — Collaborator cursors and participant identity
 
@@ -518,3 +518,199 @@ Added repository guidance for concise imperative commit messages and local-only 
 ### Anti-Patterns Avoided
 
 - Preserved existing uncommitted work and did not push the resulting commit.
+
+## 2026-11-04 — Explicit commit authorization
+
+### Task Summary & Timestamp
+
+Clarified that repository commits must be created only when the user explicitly requests one. Timestamp: 2026-11-04.
+
+### Files Modified
+
+- `RULES.md`
+- `.ai_context/MANIFEST.md`
+- `.ai_context/memory/CHRONICLE.md`
+
+### Technical Additions
+
+- Separated commit authorization from push authorization: both now require explicit user direction.
+
+### Anti-Patterns Avoided
+
+- Did not create a commit while updating repository guidance.
+
+## 2026-11-04 — Seed host operation versions before handshake
+
+### Task Summary & Timestamp
+
+Prevented host diagram operations from being sent with an empty `entityVersions` map before the welcome lifecycle finishes. Timestamp: 2026-11-04.
+
+### Files Modified
+
+- `frontend/src/pages/editor-page/canvas/toolbar/toolbar.tsx`
+- `.ai_context/MANIFEST.md`
+- `.ai_context/memory/CHRONICLE.md`
+- `graphify-out/` (refreshed navigation cache)
+
+### Technical Additions
+
+- Host startup now synchronously seeds its baseline diagram, document ID, and entity versions before connecting; the authoritative welcome snapshot still replaces this state.
+- Kept the non-empty entity-version validation intact at both frontend and Go protocol boundaries.
+
+### Anti-Patterns Avoided
+
+- Did not weaken validation or increase protocol limits without reproducing evidence.
+- Did not run a full Wails/package build.
+
+### Validation
+
+- Focused collaboration Vitest: 13 tests passed.
+- Targeted Go collaboration tests passed.
+- Targeted ESLint and file diagnostics passed.
+- Graphify update passed.
+- Full frontend `test:ci` reached 229 tests but has two unrelated `localStorage is undefined` failures in SQL/DBML import tests.
+
+## 2026-11-04 — Make Graphify analysis workflow explicit
+
+### Task Summary & Timestamp
+
+Verified the Graphify cache and clarified how repository knowledge must be used during analysis. Timestamp: 2026-11-04.
+
+### Files Modified
+
+- `AGENTS.md`
+- `.agents/skills/graphify/SKILL.md`
+- `.ai_context/MANIFEST.md`
+- `.ai_context/memory/CHRONICLE.md`
+
+### Technical Additions
+
+- Required freshness checks against `git rev-parse HEAD` and scoped Graphify navigation before broad source exploration.
+- Required recording useful graph queries and limitations in the active manifest.
+- Documented separate frontend/backend queries for cross-language flows because the current graph has no direct edge between those language boundaries.
+
+### Anti-Patterns Avoided
+
+- Kept Graphify as a navigation cache rather than treating it as proof of behavior or a substitute for source/tests.
+- Did not rebuild the AST cache for documentation-only edits.
+- Did not create a commit.
+
+### Validation
+
+- `graphify --help` succeeded.
+- `graphify explain` and scoped `graphify query` succeeded.
+- Graph report built commit `009843ec` matches `git rev-parse HEAD`.
+- `git diff --check` passed.
+
+## 2026-11-04 — Browser collaboration service mode and bounded operations
+
+### Task Summary & Timestamp
+
+Made typed collaboration usable from browser builds with an explicit Go service URL and prevented large local edits from failing frontend validation. Timestamp: 2026-11-04.
+
+### Files Modified
+
+- `main.go`
+- `collaboration_server.go`
+- `frontend/src/lib/env.ts`
+- `frontend/src/pages/editor-page/canvas/toolbar/toolbar.tsx`
+- `frontend/src/lib/collaboration/diagram-operations.ts`
+- `frontend/src/lib/collaboration/__tests__/diagram-operations.test.ts`
+- `README.md`
+- `.ai_context/REQUIREMENTS.md`
+- `.ai_context/MANIFEST.md`
+- `graphify-out/` (refreshed navigation cache)
+
+### Technical Additions
+
+- Added `CHARTDB_COLLABORATION_SERVER=1 go run .`, which starts the existing tokenized Go WebSocket service without launching Wails and prints host/invite URLs.
+- Browser hosting uses `VITE_COLLABORATION_URL`; Wails `StartCollaboration` remains the preferred automatic bootstrap when bindings exist.
+- Bounded each frontend operation to the protocol's 64-entity limit so larger diagram changes are sent in successive acknowledged operations instead of producing `entityVersions: Invalid input`.
+- Updated requirements to distinguish browser transport support from browser listener limitations.
+
+### Anti-Patterns Avoided
+
+- Preserved non-empty entity-version validation and the authoritative Go sequencer; did not weaken protocol checks or describe collaboration as conflict-free.
+- Did not claim browser-only hosting can bind LAN sockets; a Go service process remains required.
+- Did not create a commit or run a Wails/package build.
+
+### Validation
+
+- Focused collaboration Vitest: 11 tests passed.
+- `go test .` passed.
+- `npm run lint` passed.
+- `npx tsc -b --pretty false` passed.
+- `git diff --check` and file diagnostics passed.
+- `graphify update .` passed.
+
+## 2026-11-04 — Make collaboration host connection platform-safe
+
+### Task Summary & Timestamp
+
+Investigated missing operation/cursor synchronization and WSL-to-Windows connection failures. Timestamp: 2026-11-04.
+
+### Files Modified
+
+- `collaboration.go`
+- `collaboration_test.go`
+- `frontend/src/pages/editor-page/canvas/toolbar/toolbar.tsx`
+- `.ai_context/MANIFEST.md`
+- `.ai_context/memory/CHRONICLE.md`
+- `graphify-out/`
+
+### Technical Additions
+
+- The host now uses a loopback WebSocket URL for its own Wails WebView connection.
+- External interface URLs remain separately advertised as invite URLs, avoiding accidental sharing of Docker/WSL/VM loopback or virtual-adapter addresses.
+- Added regression coverage for the loopback-versus-external URL contract; frontend host connection tries the local URL before external candidates.
+
+### Anti-Patterns Avoided
+
+- Preserved the unguessable token path, strict message validation, authoritative host sequencing, and desktop-only scope.
+- Did not claim conflict-free collaboration or package/build the desktop app.
+
+### Validation
+
+- `go test .` passed.
+- Focused frontend collaboration tests passed: 13 tests in 3 files.
+- `git diff --check` passed.
+- Graphify refreshed successfully to 3962 nodes and 10985 edges; semantic labels were not refreshed because no API key was configured.
+
+## 2026-11-21 — Restore LAN collaboration end to end
+
+### Task Summary & Timestamp
+
+Reproduced, root-caused, fixed, and verified LAN collaboration with three isolated Firefox clients and real Go WebSocket sessions. Timestamp: 2026-11-21.
+
+### Files Modified
+
+- `collaboration.go`, `collaboration_hub_protocol.go`, `collaboration_protocol.go`, `collaboration_operations.go`, `collaboration_integration_test.go`, `main.go`, `collaboration_server.go`
+- `frontend/src/lib/collaboration/collaboration-protocol.ts`, `collaboration-client.ts`, `diagram-operations.ts` and their tests
+- `frontend/src/context/chartdb-context/chartdb-context.tsx`, `chartdb-provider.tsx`
+- `frontend/src/pages/editor-page/canvas/toolbar/toolbar.tsx`, `canvas.tsx`
+- `frontend/e2e/collaboration.spec.ts`, `frontend/e2e/dev-servers.mjs`, `frontend/playwright.config.ts`
+- `README.md`, `RULES.md`, `AGENTS.md`, `.gitignore`, `.ai_context/REQUIREMENTS.md`, `.ai_context/MANIFEST.md`
+- `graphify-out/` (refreshed navigation cache)
+
+### Technical Additions
+
+- Welcome now carries the base snapshot at revision 0 plus `targetRevision`; replay moves participants forward. Rejections include `lastWriter`; `session_ended` is typed, and first frames without `protocolVersion` are rejected.
+- Go protocol limits are 4 MiB and 1024 entity versions; frontend no longer silently truncates large diffs and fails loudly instead.
+- Frontend client has bounded reconnect/backoff, handshake codes in errors, and emits typed session-end messages. Toolbar has diagnostics hooks, peer presence/colors, conflict toast/rollback, and stale-apply guards.
+- Provider applies remote state with `forceUpdateStorage` and `preserveHistory` so persistence works without discarding local undo/redo.
+- Relay now preserves semantically required empty `selection` and `targetId` fields; late joiners receive existing peer names, and renames update stored presence.
+- Requirements bumped to v2.2 with explicit reconnect, presence, diagnostics, and conflict-UX behavior.
+
+### Anti-Patterns Avoided
+
+- Did not weaken schema validation; fixed the relay encoder so strict clients receive valid frames.
+- Did not describe the operation model as conflict-free; host sequencing and stale-version rejection remain authoritative.
+- Did not run `wails build` or production packaging, and did not create a commit.
+
+### Validation
+
+- `go test -race ./...` passed, including 10 `TestIntegration*` tests.
+- `npx vitest run src/lib/collaboration/__tests__ --reporter=dot` passed: 4 files / 30 tests.
+- `npx tsc -b --pretty false` and `npm run lint` passed.
+- `npx playwright test e2e/collaboration.spec.ts` passed with three isolated Firefox contexts against the supervised Go service: join/presence, live edit sync, cursors, remote selection tags, host rejection/rollback, reconnect/resync, and typed session end.
+- Manual Wails desktop runtime and a second physical LAN device were not available; those remain unverified.

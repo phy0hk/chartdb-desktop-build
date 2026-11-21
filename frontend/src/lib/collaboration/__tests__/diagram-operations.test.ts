@@ -6,6 +6,7 @@ import {
     buildDiagramOperation,
     parseDiagramOperationPayload,
     seedEntityVersions,
+    maxDiagramOperationChanges,
 } from '../diagram-operations';
 
 const createDiagram = (overrides: Record<string, unknown> = {}): Diagram =>
@@ -79,6 +80,55 @@ describe('diagram collaboration operations', () => {
                     change.id === 'table-1'
             )
         ).toBe(true);
+    });
+
+    it('rejects changes above the protocol entity limit instead of truncating them', () => {
+        const previous = createDiagram({ tables: [] });
+        const current = createDiagram({
+            tables: Array.from(
+                { length: maxDiagramOperationChanges + 1 },
+                (_, index) => ({
+                    id: `table-${index}`,
+                    name: `table-${index}`,
+                    fields: [],
+                })
+            ),
+        });
+
+        // Silent truncation would drop the extra entity and diverge peers.
+        expect(() =>
+            buildDiagramOperation(
+                previous,
+                current,
+                seedEntityVersions(previous)
+            )
+        ).toThrow(/operation limit/);
+    });
+
+    it('keeps a full atomic cascade below the protocol entity limit', () => {
+        const previous = createDiagram({ tables: [] });
+        const current = createDiagram({
+            tables: Array.from({ length: 100 }, (_, index) => ({
+                id: `table-${index}`,
+                name: `table-${index}`,
+                fields: [],
+            })),
+        });
+
+        const operation = buildDiagramOperation(
+            previous,
+            current,
+            seedEntityVersions(previous)
+        );
+
+        expect(operation?.payload.changes).toHaveLength(100);
+        expect(Object.keys(operation?.entityVersions ?? {})).toHaveLength(100);
+        expect(() =>
+            parseDiagramOperationPayload(
+                operation?.payload,
+                operation?.entityVersions ?? {}
+            )
+        ).not.toThrow();
     });
 
     it('seeds entity versions and validates remote payload entity versions', () => {

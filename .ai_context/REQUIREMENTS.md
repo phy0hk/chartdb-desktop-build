@@ -1,6 +1,6 @@
 # ChartDB Desktop Collaboration Requirements
 
-Version: 2.0
+Version: 2.2
 
 ## Architecture and technology
 
@@ -22,9 +22,12 @@ Enable users on the same local network to collaborate on one ChartDB diagram thr
 - Operations include unique IDs and entity-version preconditions. Stale conflicting operations are rejected rather than silently overwriting newer edits. Multi-entity operations must be validated and applied atomically.
 - Acknowledgement means accepted and sequenced in the current live session; the initial design does not promise survival of host shutdown/restart. Host shutdown ends the session, and clients must resynchronize from the host's current diagram after reconnecting to a new session.
 - Transient cursor, selection, active-edit, and drag/resize preview state is not persisted and does not enter undo history.
-- Connected participants can share cursor and display-name presence.
-- Host shutdown and explicit stop close the session listener and clients.
-- Collaboration is exposed only in the Wails desktop runtime; normal web app use remains unchanged.
+- Connected participants can share cursor and display-name presence. A late joiner receives the current names of existing peers; renames propagate to all connected clients.
+- Clients retry unexpected socket loss with bounded exponential backoff and resynchronize from the authoritative snapshot on reconnect. Handshake rejections and typed session-end events are surfaced with actionable status text; no retry occurs after explicit close or session end.
+- Host shutdown and explicit stop close the session listener and clients. Participants receive a typed `session_ended` notice before shutdown.
+- The UI exposes connection diagnostics (state, status, URL, revision, peer list, last message) and shows host rejections with last-writer detail, an optimistic rollback, and a resync request.
+- Transient frames preserve semantically required empty fields (empty selection and stopped-editing signal) so strict clients do not disconnect.
+- Collaboration is available in the Wails desktop runtime and in browser mode when `VITE_COLLABORATION_URL` points to a reachable Go collaboration service/session. Browser mode must not require Wails bindings; normal web app use remains unchanged when no collaboration service is configured.
 
 ## Security and constraints
 
@@ -34,9 +37,9 @@ Enable users on the same local network to collaborate on one ChartDB diagram thr
 - The host is authoritative for operation ordering and conflict preconditions. Same-entity edits based on stale entity versions are rejected with a conflict response; different-entity edits may proceed independently. This is serialized conflict detection, not CRDT merging or conflict-free editing.
 - Initial join/resynchronization may use a complete authoritative snapshot associated with a session revision; snapshots are recovery/bootstrap data, not the durable edit protocol.
 - Session operation history is initially in-memory only. A host restart ends the previous session; no acknowledged-operation recovery across restart is promised.
-- Collaboration remains LAN-hosted, unencrypted, desktop-only, and unsuitable for untrusted networks.
+- Collaboration remains LAN-hosted, unencrypted, and unsuitable for untrusted networks. Browser hosting requires a separately reachable Go collaboration service because a browser cannot bind an inbound LAN listener.
 
 ## Validation
 
-- Go tests/build validate the host service.
-- Frontend lint, typecheck, and build validate the toolbar integration.
+- Go tests/build validate the host service, including real-listener WebSocket integration tests for replay, reconnect replacement, atomic operations, conflict attribution, transient relay fields, and late-join presence.
+- Frontend lint, typecheck, unit tests, and a Playwright harness with isolated browser contexts validate the toolbar and canvas integration end to end against the standalone Go service.

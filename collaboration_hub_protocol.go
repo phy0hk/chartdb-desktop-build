@@ -19,39 +19,6 @@ func hasProtocolVersion(data []byte) bool {
 	return exists
 }
 
-func (h *collaborationHub) serveLegacy(peer *collaborationPeer, firstMessage []byte) {
-	h.mu.Lock()
-	if h.ended || (h.mode != "" && h.mode != "legacy") || len(h.clients) >= maxCollaborationParticipants {
-		h.mu.Unlock()
-		_ = peer.conn.Close()
-		return
-	}
-	h.mode = "legacy"
-	h.clients[peer] = struct{}{}
-	if len(h.latest) > 0 {
-		peer.outbound <- append([]byte(nil), h.latest...)
-	}
-	h.mu.Unlock()
-
-	go peer.writePump()
-	defer h.removePeer(peer)
-	h.broadcast(peer, firstMessage)
-	h.readLegacyMessages(peer)
-}
-
-func (h *collaborationHub) readLegacyMessages(peer *collaborationPeer) {
-	for {
-		kind, data, err := peer.conn.ReadMessage()
-		if err != nil {
-			return
-		}
-		if kind != websocket.TextMessage || len(data) > maxCollaborationMessage || !json.Valid(data) {
-			return
-		}
-		h.broadcast(peer, data)
-	}
-}
-
 func (h *collaborationHub) serveTyped(peer *collaborationPeer, firstMessage []byte) {
 	message, err := decodeCollaborationMessage(firstMessage)
 	if err != nil || message.Type != "hello" {
@@ -62,6 +29,7 @@ func (h *collaborationHub) serveTyped(peer *collaborationPeer, firstMessage []by
 		return
 	}
 
+	var stalePeers []*collaborationPeer
 	h.mu.Lock()
 	if h.ended || (h.mode != "" && h.mode != "typed") || len(h.clients) >= maxCollaborationParticipants {
 		h.mu.Unlock()
@@ -98,21 +66,49 @@ func (h *collaborationHub) serveTyped(peer *collaborationPeer, firstMessage []by
 		}
 	}
 	for existing := range h.clients {
-		if existing.clientID == message.ClientID {
+		if existing.clientID != message.ClientID {
+			continue
+		}
+		// Host identity cannot be replaced mid-session; a participant may
+		// replace its own stale socket after a reconnect race.
+		if existing.role == "host" || message.Role == "host" {
 			h.mu.Unlock()
 			h.writeHandshakeError(peer.conn, "client_id_in_use")
 			return
 		}
+		delete(h.clients, existing)
+		existing.replaced = true
+		stalePeers = append(stalePeers, existing)
 	}
 	peer.clientID = message.ClientID
 	peer.role = message.Role
+	peer.name = message.Name
 	h.clients[peer] = struct{}{}
+	// A late joiner must learn who is already in the session; otherwise its
+	// presence list only contains itself until everyone else sends again.
+	var presence []collaborationMessage
+	if message.Role == "participant" {
+		for existing := range h.clients {
+			if existing == peer || existing.name == "" {
+				continue
+			}
+			presence = append(presence, collaborationMessage{
+				ProtocolVersion: collaborationProtocolVersion,
+				Type:            "name",
+				ClientID:        existing.clientID,
+				Name:            existing.name,
+			})
+		}
+	}
 	welcome := collaborationMessage{
 		ProtocolVersion: collaborationProtocolVersion,
 		Type:            "welcome",
 		DocumentID:      h.documentID,
-		Revision:        h.sequencer.currentRevision(),
-		Payload:         append(json.RawMessage(nil), h.snapshot...),
+		// Revision describes the base snapshot; replayed operations advance the
+		// client from here to TargetRevision.
+		Revision:       0,
+		TargetRevision: h.sequencer.currentRevision(),
+		Payload:        append(json.RawMessage(nil), h.snapshot...),
 	}
 	welcomeBytes, encodeErr := encodeCollaborationMessage(welcome)
 	var replay []collaborationMessage
@@ -120,6 +116,9 @@ func (h *collaborationHub) serveTyped(peer *collaborationPeer, firstMessage []by
 		replay, encodeErr = h.sequencer.replayAfter(0)
 	}
 	h.mu.Unlock()
+	for _, stale := range stalePeers {
+		stale.shutdown()
+	}
 	if encodeErr != nil {
 		h.removePeer(peer)
 		return
@@ -132,6 +131,13 @@ func (h *collaborationHub) serveTyped(peer *collaborationPeer, firstMessage []by
 	}
 	for _, operation := range replay {
 		data, err := encodeCollaborationMessage(operation)
+		if err != nil || !enqueueCollaborationMessageWait(peer, data, writeWait) {
+			h.removePeer(peer)
+			return
+		}
+	}
+	for _, existing := range presence {
+		data, err := encodeCollaborationMessage(existing)
 		if err != nil || !enqueueCollaborationMessageWait(peer, data, writeWait) {
 			h.removePeer(peer)
 			return
@@ -166,6 +172,35 @@ func (h *collaborationHub) readTypedMessages(peer *collaborationPeer) {
 	}
 }
 
+// encodeTransientMessage preserves fields that are semantically required even
+// when empty. A generic encode with omitempty would drop an empty selection or
+// the explicit empty targetId that means "stopped editing", producing frames
+// the strict browser schema rejects and disconnecting every listener.
+func encodeTransientMessage(message collaborationMessage) ([]byte, error) {
+	switch message.Type {
+	case "selection":
+		selection := message.Selection
+		if selection == nil {
+			selection = []string{}
+		}
+		return json.Marshal(struct {
+			ProtocolVersion int      `json:"protocolVersion"`
+			Type            string   `json:"type"`
+			ClientID        string   `json:"clientId"`
+			Selection       []string `json:"selection"`
+		}{message.ProtocolVersion, message.Type, message.ClientID, selection})
+	case "editing":
+		return json.Marshal(struct {
+			ProtocolVersion int    `json:"protocolVersion"`
+			Type            string `json:"type"`
+			ClientID        string `json:"clientId"`
+			TargetID        string `json:"targetId"`
+		}{message.ProtocolVersion, message.Type, message.ClientID, message.TargetID})
+	default:
+		return encodeCollaborationMessage(message)
+	}
+}
+
 func (h *collaborationHub) handleTypedMessage(peer *collaborationPeer, message collaborationMessage) {
 	if message.ClientID != peer.clientID {
 		h.sendProtocolError(peer, "client_id_mismatch")
@@ -192,8 +227,13 @@ func (h *collaborationHub) handleTypedMessage(peer *collaborationPeer, message c
 		return
 	}
 
+	if message.Type == "name" {
+		h.mu.Lock()
+		peer.name = message.Name
+		h.mu.Unlock()
+	}
 	message.DocumentID = ""
-	data, err := encodeCollaborationMessage(message)
+	data, err := encodeTransientMessage(message)
 	if err != nil {
 		h.sendProtocolError(peer, err.Error())
 		return
@@ -221,7 +261,8 @@ func (h *collaborationHub) handleTypedResync(peer *collaborationPeer, request co
 		ProtocolVersion: collaborationProtocolVersion,
 		Type:            "welcome",
 		DocumentID:      documentID,
-		Revision:        revision,
+		Revision:        0,
+		TargetRevision:  revision,
 		Payload:         snapshot,
 	})
 	if err != nil || !enqueueCollaborationMessageWait(peer, welcome, writeWait) {

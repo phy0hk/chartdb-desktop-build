@@ -26,6 +26,7 @@ export const collaborationMessageSchema = z.discriminatedUnion('type', [
         type: z.literal('welcome'),
         documentId: identifierSchema,
         revision: z.number().int().nonnegative().optional(),
+        targetRevision: z.number().int().nonnegative().optional(),
         payload: payloadSchema,
     }),
     baseMessageSchema.extend({
@@ -39,7 +40,7 @@ export const collaborationMessageSchema = z.discriminatedUnion('type', [
             .refine(
                 (versions) =>
                     Object.keys(versions).length > 0 &&
-                    Object.keys(versions).length <= 64
+                    Object.keys(versions).length <= 1024
             ),
         payload: payloadSchema,
     }),
@@ -58,6 +59,7 @@ export const collaborationMessageSchema = z.discriminatedUnion('type', [
         code: identifierSchema,
         message: z.string().max(512),
         revision: z.number().int().nonnegative().optional(),
+        lastWriter: identifierSchema.optional(),
     }),
     baseMessageSchema.extend({
         type: z.literal('resync'),
@@ -88,7 +90,8 @@ export const collaborationMessageSchema = z.discriminatedUnion('type', [
     baseMessageSchema.extend({
         type: z.literal('editing'),
         clientId: identifierSchema,
-        targetId: identifierSchema,
+        // Empty targetId means the participant stopped editing.
+        targetId: z.string().max(128),
     }),
     baseMessageSchema.extend({
         type: z.literal('preview'),
@@ -109,6 +112,11 @@ export const collaborationMessageSchema = z.discriminatedUnion('type', [
         clientId: identifierSchema.optional(),
     }),
     baseMessageSchema.extend({
+        type: z.literal('session_ended'),
+        documentId: identifierSchema.optional(),
+        message: z.string().max(512).optional(),
+    }),
+    baseMessageSchema.extend({
         type: z.literal('error'),
         code: identifierSchema,
         message: z.string().max(512),
@@ -123,6 +131,10 @@ export type CollaborationHello = Extract<
 export type CollaborationWelcome = Extract<
     CollaborationMessage,
     { type: 'welcome' }
+>;
+export type CollaborationSessionEnded = Extract<
+    CollaborationMessage,
+    { type: 'session_ended' }
 >;
 export type CollaborationOperation = Extract<
     CollaborationMessage,
@@ -170,7 +182,8 @@ export function parseCollaborationOutgoingMessage(
     }
     validateHello(parsed);
     const serialized = JSON.stringify(parsed);
-    const maxSize = parsed.type === 'operation' ? 256 * 1024 : 8 * 1024 * 1024;
+    const maxSize =
+        parsed.type === 'operation' ? 4 * 1024 * 1024 : 8 * 1024 * 1024;
     if (new TextEncoder().encode(serialized).byteLength > maxSize) {
         throw new Error('Collaboration message exceeds the size limit');
     }
